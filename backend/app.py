@@ -10,6 +10,17 @@ import pandas as pd
 from io import BytesIO
 import json
 from config import IS_LOCAL, CHROMA_API_KEY, CHROMA_TENANT, CHROMA_DATABASE
+from database_manager import (
+    get_all_users,
+    get_users_by_company,
+    get_users_by_role,
+    get_study_by_id,
+    get_studies_by_sponsor,
+    get_studies_by_status,
+    add_investigator_to_study,
+    get_database_statistics,
+    db_manager,
+)
 
 app = Flask(__name__)
 
@@ -246,6 +257,188 @@ def list_documents():
 
         return jsonify({"documents": documents, "total_count": len(documents)}), 200
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# User endpoints
+@app.route("/api/users", methods=["GET"])
+def get_users():
+    """Get all users or filter by company/role."""
+    try:
+        company = request.args.get("company")
+        role = request.args.get("role")
+
+        if company:
+            users = get_users_by_company(company)
+        elif role:
+            users = get_users_by_role(role)
+        else:
+            users = get_all_users()
+
+        return (
+            jsonify(
+                {"users": [user.to_dict() for user in users], "total_count": len(users)}
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/users/<company>", methods=["GET"])
+def get_users_by_company_endpoint(company):
+    """Get users by specific company."""
+    try:
+        users = get_users_by_company(company)
+        return (
+            jsonify(
+                {
+                    "users": [user.to_dict() for user in users],
+                    "company": company,
+                    "total_count": len(users),
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# Study endpoints
+@app.route("/api/studies", methods=["GET"])
+def get_studies():
+    """Get all studies or filter by sponsor/status."""
+    try:
+        sponsor = request.args.get("sponsor")
+        status = request.args.get("status")
+
+        if sponsor:
+            studies = get_studies_by_sponsor(sponsor)
+        elif status:
+            studies = get_studies_by_status(status)
+        else:
+            studies = MOCK_STUDIES
+
+        return (
+            jsonify(
+                {
+                    "studies": [study.to_dict() for study in studies],
+                    "total_count": len(studies),
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/studies/<study_id>", methods=["GET"])
+def get_study(study_id):
+    """Get specific study by ID."""
+    try:
+        study = get_study_by_id(study_id)
+        if not study:
+            return jsonify({"error": "Study not found"}), 404
+
+        return jsonify({"study": study.to_dict()}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/studies/<study_id>/investigator", methods=["POST"])
+def add_investigator_to_study(study_id):
+    """Add principal investigator to a study."""
+    try:
+        study = get_study_by_id(study_id)
+        if not study:
+            return jsonify({"error": "Study not found"}), 404
+
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        required_fields = ["name", "email", "institution", "specialty"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        # Set the principal investigator using database manager
+        success = add_investigator_to_study(study_id, data)
+        if not success:
+            return jsonify({"error": "Failed to add investigator"}), 500
+
+        return (
+            jsonify(
+                {
+                    "message": "Principal investigator added successfully",
+                    "study": study.to_dict(),
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/studies", methods=["POST"])
+def create_study():
+    """Create a new study."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        required_fields = ["title", "protocol", "sponsor", "phase", "indication"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        # Generate new study ID
+        study_id = f"STD-{db_manager.get_study_count() + 1:03d}"
+
+        # Create new study
+        from datetime import datetime
+        from models import Study
+
+        new_study = Study(
+            study_id=study_id,
+            title=data["title"],
+            protocol=data["protocol"],
+            sponsor=data["sponsor"],
+            status="draft",
+            created_at=datetime.now(),
+            sites=[],
+            principal_investigator=data.get("principalInvestigator"),
+        )
+
+        # Add to database
+        success = db_manager.add_study(new_study)
+        if not success:
+            return jsonify({"error": "Failed to create study"}), 500
+
+        return (
+            jsonify(
+                {"message": "Study created successfully", "study": new_study.to_dict()}
+            ),
+            201,
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/database/stats", methods=["GET"])
+def get_database_stats():
+    """Get database statistics."""
+    try:
+        stats = get_database_statistics()
+        return jsonify({"statistics": stats}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

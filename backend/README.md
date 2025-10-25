@@ -1,14 +1,30 @@
-# Document Storage Backend
+# SDV Platform Backend
 
-A Flask backend service that accepts files (PDF, CSV) and stores them in ChromaDB for semantic search and retrieval.
+A Flask backend service for the SDV (Source Data Verification) Platform that provides document storage, user management, and study management capabilities.
 
 ## Features
+
+### Document Management
 
 -   **File Upload**: Accept PDF and CSV files via REST API
 -   **Text Extraction**: Automatically extract text content from uploaded files
 -   **ChromaDB Integration**: Store documents in ChromaDB for vector-based search
 -   **Semantic Search**: Search through documents using natural language queries
 -   **Document Management**: List and manage uploaded documents
+
+### User Management
+
+-   **User Data**: Manage users with roles (Sponsor, Investigator)
+-   **Company Association**: Organize users by company (Google, Veera Vault, Medidata)
+-   **User Filtering**: Filter users by company or role
+
+### Study Management
+
+-   **Study CRUD**: Create, read, update studies
+-   **Principal Investigator Management**: Assign investigators to studies
+-   **Study Status Tracking**: Track study status (draft, active, completed, on-hold)
+-   **Site Management**: Manage study sites and investigators
+-   **File Management**: Handle study-related files (protocols, eSource, CRF)
 
 ## Prerequisites
 
@@ -52,9 +68,63 @@ A Flask backend service that accepts files (PDF, CSV) and stores them in ChromaD
 python app.py
 ```
 
+Or use the startup script for better output:
+
+```bash
+python start_server.py
+```
+
 The server will start on `http://localhost:5001`
 
+### Database Setup
+
+The backend includes a setup script to initialize the database with users and studies:
+
+```bash
+# Setup database with initial data
+python setup_database.py setup
+
+# Show database status
+python setup_database.py status
+
+# Reset database (clear all data)
+python setup_database.py reset
+
+# Show help
+python setup_database.py help
+```
+
+### Testing the API
+
+Run the test script to verify all endpoints:
+
+```bash
+python test_endpoints.py
+```
+
+Or run the demo to see the setup in action:
+
+```bash
+python demo_setup.py
+```
+
 ### API Endpoints
+
+For detailed API documentation, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
+
+#### User Management Endpoints
+
+-   **GET** `/api/users` - Get all users or filter by company/role
+-   **GET** `/api/users/{company}` - Get users by company
+
+#### Study Management Endpoints
+
+-   **GET** `/api/studies` - Get all studies or filter by sponsor/status
+-   **GET** `/api/studies/{study_id}` - Get specific study
+-   **POST** `/api/studies` - Create new study
+-   **POST** `/api/studies/{study_id}/investigator` - Add investigator to study
+
+#### Document Management Endpoints
 
 #### 1. Upload File
 
@@ -238,13 +308,21 @@ The API includes comprehensive error handling for:
 
 ```
 backend/
-├── app.py              # Main Flask application
-├── config.py           # Configuration management
-├── requirements.txt    # Python dependencies
-├── README.md          # This file
-├── .env.example       # Environment variables template
-├── uploads/           # Temporary file storage (auto-created)
-└── chroma_db/         # ChromaDB data storage (auto-created, local mode only)
+├── app.py                    # Main Flask application
+├── models.py                 # Data models (User, Study, Site, StudyFile)
+├── mock_data.py              # Mock data for users and studies
+├── database_manager.py       # Database management and operations
+├── setup_database.py         # Database setup and initialization script
+├── demo_setup.py             # Demonstration of database setup
+├── config.py                 # Configuration management
+├── start_server.py           # Server startup script
+├── test_endpoints.py         # API endpoint testing script
+├── requirements.txt          # Python dependencies
+├── README.md                # This file
+├── API_DOCUMENTATION.md     # Detailed API documentation
+├── .env.example             # Environment variables template
+├── uploads/                 # Temporary file storage (auto-created)
+└── chroma_db/               # ChromaDB data storage (auto-created, local mode only)
 ```
 
 ### Adding New File Types
