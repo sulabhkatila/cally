@@ -24,6 +24,16 @@ from database_manager import (
 
 app = Flask(__name__)
 
+
+# Enable CORS for all routes
+@app.after_request
+def after_request(response):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+    return response
+
+
 # Configuration
 UPLOAD_FOLDER = "uploads"
 
@@ -339,7 +349,7 @@ def get_studies():
         elif status:
             studies = get_studies_by_status(status)
         else:
-            studies = MOCK_STUDIES
+            studies = db_manager.get_all_studies()
 
         return (
             jsonify(

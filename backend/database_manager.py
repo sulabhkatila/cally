@@ -44,7 +44,9 @@ class DatabaseManager:
     def get_users_by_company(self, company: str) -> List[User]:
         """Get users by company."""
         return [
-            user for user in self.users.values() if user.company_association == company
+            user
+            for user in self.users.values()
+            if user.company_association.lower() == company.lower()
         ]
 
     def get_users_by_role(self, role: str) -> List[User]:
@@ -86,7 +88,11 @@ class DatabaseManager:
 
     def get_studies_by_sponsor(self, sponsor: str) -> List[Study]:
         """Get studies by sponsor."""
-        return [study for study in self.studies.values() if study.sponsor == sponsor]
+        return [
+            study
+            for study in self.studies.values()
+            if study.sponsor.lower() == sponsor.lower()
+        ]
 
     def get_studies_by_status(self, status: str) -> List[Study]:
         """Get studies by status."""
