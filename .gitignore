@@ -4,3 +4,7 @@ backend/venv
 agents2/.env
 
 sdvsdr/.env
+
+mock_trial_site/backend/.env
+mock_trial_site/backend/venv
+mock_trial_site/frontend/node_modules
