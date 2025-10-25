@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Frontend-Backend Integration Test</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .container {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .test-section {
+                margin: 20px 0;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            .success {
+                background-color: #d4edda;
+                border-color: #c3e6cb;
+            }
+            .error {
+                background-color: #f8d7da;
+                border-color: #f5c6cb;
+            }
+            .loading {
+                background-color: #fff3cd;
+                border-color: #ffeaa7;
+            }
+            button {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin: 5px;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+            button:disabled {
+                background-color: #6c757d;
+                cursor: not-allowed;
+            }
+            .log {
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                padding: 10px;
+                border-radius: 4px;
+                font-family: monospace;
+                font-size: 12px;
+                max-height: 200px;
+                overflow-y: auto;
+                white-space: pre-wrap;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Frontend-Backend Integration Test</h1>
+            <p>
+                This page tests the connection between the frontend and backend.
+            </p>
+
+            <div class="test-section">
+                <h3>Backend Connection Test</h3>
+                <button onclick="testBackendConnection()">
+                    Test Backend Connection
+                </button>
+                <div id="connectionResult"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>API Endpoints Test</h3>
+                <button onclick="testAllEndpoints()">Test All Endpoints</button>
+                <div id="endpointsResult"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>Test Logs</h3>
+                <button onclick="clearLogs()">Clear Logs</button>
+                <div id="logs" class="log"></div>
+            </div>
+        </div>
+
+        <script>
+            const API_BASE_URL = "http://localhost:5001";
+            let logs = [];
+
+            function log(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                logs.push(`[${timestamp}] ${message}`);
+                document.getElementById("logs").textContent = logs.join("\n");
+                console.log(message);
+            }
+
+            function clearLogs() {
+                logs = [];
+                document.getElementById("logs").textContent = "";
+            }
+
+            function setResult(elementId, message, type = "success") {
+                const element = document.getElementById(elementId);
+                element.innerHTML = `<div class="${type}">${message}</div>`;
+            }
+
+            async function testBackendConnection() {
+                log("Testing backend connection...");
+                setResult("connectionResult", "Testing...", "loading");
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/health`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        log(
+                            `✅ Backend connection successful: ${data.message}`
+                        );
+                        setResult(
+                            "connectionResult",
+                            `✅ Backend is running: ${data.message}`,
+                            "success"
+                        );
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (error) {
+                    log(`❌ Backend connection failed: ${error.message}`);
+                    setResult(
+                        "connectionResult",
+                        `❌ Connection failed: ${error.message}`,
+                        "error"
+                    );
+                }
+            }
+
+            async function testAllEndpoints() {
+                log("Testing all API endpoints...");
+                setResult("endpointsResult", "Testing endpoints...", "loading");
+
+                const tests = [
+                    { name: "Health Check", url: "/health", method: "GET" },
+                    { name: "Get Users", url: "/api/users", method: "GET" },
+                    { name: "Get Studies", url: "/api/studies", method: "GET" },
+                    {
+                        name: "Get Users by Company",
+                        url: "/api/users/google",
+                        method: "GET",
+                    },
+                    {
+                        name: "Get Studies by Status",
+                        url: "/api/studies?status=active",
+                        method: "GET",
+                    },
+                    {
+                        name: "Database Stats",
+                        url: "/api/database/stats",
+                        method: "GET",
+                    },
+                ];
+
+                let results = [];
+
+                for (const test of tests) {
+                    try {
+                        log(`Testing ${test.name}...`);
+                        const response = await fetch(
+                            `${API_BASE_URL}${test.url}`,
+                            {
+                                method: test.method,
+                                headers: { "Content-Type": "application/json" },
+                            }
+                        );
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            log(
+                                `✅ ${test.name}: ${
+                                    response.status
+                                } - ${JSON.stringify(data).substring(
+                                    0,
+                                    100
+                                )}...`
+                            );
+                            results.push(`✅ ${test.name}`);
+                        } else {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                    } catch (error) {
+                        log(`❌ ${test.name} failed: ${error.message}`);
+                        results.push(`❌ ${test.name}`);
+                    }
+                }
+
+                const successCount = results.filter((r) =>
+                    r.startsWith("✅")
+                ).length;
+                const totalCount = results.length;
+
+                log(
+                    `\nTest Summary: ${successCount}/${totalCount} tests passed`
+                );
+
+                if (successCount === totalCount) {
+                    setResult(
+                        "endpointsResult",
+                        `✅ All ${totalCount} endpoints working correctly!`,
+                        "success"
+                    );
+                } else {
+                    setResult(
+                        "endpointsResult",
+                        `⚠️ ${successCount}/${totalCount} endpoints working. Check logs for details.`,
+                        "error"
+                    );
+                }
+            }
+
+            // Auto-test on page load
+            window.onload = function () {
+                log("Page loaded. Ready to test frontend-backend integration.");
+                testBackendConnection();
+            };
+        </script>
+    </body>
+</html>

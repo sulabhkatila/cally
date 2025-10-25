@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar.js";
+import dataService from "../services/dataService.js";
 import { getUser } from "../utils/userStorage.js";
 import "./CreateStudy.css";
 
@@ -55,12 +56,31 @@ const CreateStudy = () => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            console.log("Study created:", formData);
-            setIsSubmitting(false);
+        try {
+            // Prepare study data for backend
+            const studyData = {
+                title: formData.title,
+                protocol: formData.description,
+                sponsor: user.companyAssociation,
+                phase: formData.phase,
+                indication: formData.indication,
+                principalInvestigator: formData.principalInvestigator.name
+                    ? formData.principalInvestigator
+                    : null,
+            };
+
+            // Create study via backend API
+            const response = await dataService.createStudy(studyData);
+
+            console.log("Study created successfully:", response);
+            alert("Study created successfully!");
             navigate("/studies");
-        }, 2000);
+        } catch (error) {
+            console.error("Error creating study:", error);
+            alert("Failed to create study. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleCancel = () => {

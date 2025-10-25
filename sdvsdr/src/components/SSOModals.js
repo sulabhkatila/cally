@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockUsers } from "../data/mockUsers.js";
+import { useUsers } from "../hooks/useUsers.js";
 import { storeUser } from "../utils/userStorage.js";
 
 // Google SSO Modal Component
 export const GoogleSSOModal = ({ onClose, selectedUser, setSelectedUser }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showConsent, setShowConsent] = useState(false);
+    const { users, loading: usersLoading } = useUsers();
     const navigate = useNavigate();
 
     const handleUserSelect = (user) => {
@@ -82,25 +83,33 @@ export const GoogleSSOModal = ({ onClose, selectedUser, setSelectedUser }) => {
                         </div>
                         <div className="right-panel">
                             <div className="google-accounts">
-                                {mockUsers.google.map((user, index) => (
-                                    <div
-                                        key={index}
-                                        className="account-item"
-                                        onClick={() => handleUserSelect(user)}
-                                    >
-                                        <div className="account-avatar">
-                                            {user.getInitials()}
-                                        </div>
-                                        <div className="account-info">
-                                            <div className="account-name">
-                                                {user.getFullName()}
-                                            </div>
-                                            <div className="account-email">
-                                                {user.emailAddress}
-                                            </div>
-                                        </div>
+                                {usersLoading ? (
+                                    <div className="loading-message">
+                                        Loading users...
                                     </div>
-                                ))}
+                                ) : (
+                                    users.google.map((user, index) => (
+                                        <div
+                                            key={index}
+                                            className="account-item"
+                                            onClick={() =>
+                                                handleUserSelect(user)
+                                            }
+                                        >
+                                            <div className="account-avatar">
+                                                {user.getInitials()}
+                                            </div>
+                                            <div className="account-info">
+                                                <div className="account-name">
+                                                    {user.getFullName()}
+                                                </div>
+                                                <div className="account-email">
+                                                    {user.emailAddress}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                                 <div className="account-item add-account">
                                     <div className="account-avatar add-icon">
                                         <svg
@@ -244,6 +253,7 @@ export const GoogleSSOModal = ({ onClose, selectedUser, setSelectedUser }) => {
 export const VeeraSSOModal = ({ onClose, selectedUser, setSelectedUser }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showConsent, setShowConsent] = useState(false);
+    const { users, loading: usersLoading } = useUsers();
     const navigate = useNavigate();
 
     const handleUserSelect = (user) => {
@@ -301,25 +311,33 @@ export const VeeraSSOModal = ({ onClose, selectedUser, setSelectedUser }) => {
                         </div>
                         <div className="right-panel">
                             <div className="veera-accounts">
-                                {mockUsers.veera.map((user, index) => (
-                                    <div
-                                        key={index}
-                                        className="account-item"
-                                        onClick={() => handleUserSelect(user)}
-                                    >
-                                        <div className="account-avatar">
-                                            {user.getInitials()}
-                                        </div>
-                                        <div className="account-info">
-                                            <div className="account-name">
-                                                {user.getFullName()}
-                                            </div>
-                                            <div className="account-email">
-                                                {user.emailAddress}
-                                            </div>
-                                        </div>
+                                {usersLoading ? (
+                                    <div className="loading-message">
+                                        Loading users...
                                     </div>
-                                ))}
+                                ) : (
+                                    users.veera.map((user, index) => (
+                                        <div
+                                            key={index}
+                                            className="account-item"
+                                            onClick={() =>
+                                                handleUserSelect(user)
+                                            }
+                                        >
+                                            <div className="account-avatar">
+                                                {user.getInitials()}
+                                            </div>
+                                            <div className="account-info">
+                                                <div className="account-name">
+                                                    {user.getFullName()}
+                                                </div>
+                                                <div className="account-email">
+                                                    {user.emailAddress}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                                 <div className="account-item add-account">
                                     <div className="account-avatar add-icon">
                                         <svg
@@ -467,6 +485,7 @@ export const MedidataSSOModal = ({
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showConsent, setShowConsent] = useState(false);
+    const { users, loading: usersLoading } = useUsers();
     const navigate = useNavigate();
 
     const handleUserSelect = (user) => {
@@ -524,25 +543,33 @@ export const MedidataSSOModal = ({
                         </div>
                         <div className="right-panel">
                             <div className="medidata-accounts">
-                                {mockUsers.medidata.map((user, index) => (
-                                    <div
-                                        key={index}
-                                        className="account-item"
-                                        onClick={() => handleUserSelect(user)}
-                                    >
-                                        <div className="account-avatar">
-                                            {user.getInitials()}
-                                        </div>
-                                        <div className="account-info">
-                                            <div className="account-name">
-                                                {user.getFullName()}
-                                            </div>
-                                            <div className="account-email">
-                                                {user.emailAddress}
-                                            </div>
-                                        </div>
+                                {usersLoading ? (
+                                    <div className="loading-message">
+                                        Loading users...
                                     </div>
-                                ))}
+                                ) : (
+                                    users.medidata.map((user, index) => (
+                                        <div
+                                            key={index}
+                                            className="account-item"
+                                            onClick={() =>
+                                                handleUserSelect(user)
+                                            }
+                                        >
+                                            <div className="account-avatar">
+                                                {user.getInitials()}
+                                            </div>
+                                            <div className="account-info">
+                                                <div className="account-name">
+                                                    {user.getFullName()}
+                                                </div>
+                                                <div className="account-email">
+                                                    {user.emailAddress}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                                 <div className="account-item add-account">
                                     <div className="account-avatar add-icon">
                                         <svg

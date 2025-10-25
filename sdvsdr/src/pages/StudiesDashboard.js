@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BackendTest from "../components/BackendTest.js";
 import Navbar from "../components/Navbar.js";
-import { mockStudies } from "../data/studies.js";
+import dataService from "../services/dataService.js";
 import { getUser } from "../utils/userStorage.js";
 import "./StudiesDashboard.css";
 
 const StudiesDashboard = () => {
     const navigate = useNavigate();
     const user = getUser();
-    const [studies, setStudies] = useState(mockStudies);
+    const [studies, setStudies] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [selectedStudy, setSelectedStudy] = useState(null);
     const [showInvestigatorModal, setShowInvestigatorModal] = useState(false);
     const [currentStudy, setCurrentStudy] = useState(null);
@@ -21,6 +24,25 @@ const StudiesDashboard = () => {
 
     const isSponsor = user?.role === "Sponsor";
     const isInvestigator = user?.role === "Investigator";
+
+    // Fetch studies from backend on component mount
+    useEffect(() => {
+        const fetchStudies = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const response = await dataService.getStudies();
+                setStudies(response.studies);
+            } catch (err) {
+                console.error("Error fetching studies:", err);
+                setError("Failed to load studies. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStudies();
+    }, []);
 
     const handleCreateStudy = () => {
         navigate("/create-study");
@@ -50,7 +72,7 @@ const StudiesDashboard = () => {
         }));
     };
 
-    const handleSaveInvestigator = () => {
+    const handleSaveInvestigator = async () => {
         if (
             currentStudy &&
             investigatorData.name &&
@@ -58,16 +80,37 @@ const StudiesDashboard = () => {
             investigatorData.institution &&
             investigatorData.specialty
         ) {
-            // Update the study with the new investigator
-            const updatedStudies = studies.map((study) => {
-                if (study.id === currentStudy.id) {
-                    study.setPrincipalInvestigator(investigatorData);
-                }
-                return study;
-            });
-            setStudies(updatedStudies);
-            setShowInvestigatorModal(false);
-            setCurrentStudy(null);
+            try {
+                // Add investigator to study via backend API
+                const response = await dataService.addInvestigatorToStudy(
+                    currentStudy.id,
+                    investigatorData
+                );
+
+                // Update the studies list with the updated study
+                const updatedStudies = studies.map((study) => {
+                    if (study.id === currentStudy.id) {
+                        return response.study;
+                    }
+                    return study;
+                });
+
+                setStudies(updatedStudies);
+                setShowInvestigatorModal(false);
+                setCurrentStudy(null);
+                setInvestigatorData({
+                    name: "",
+                    email: "",
+                    institution: "",
+                    specialty: "",
+                });
+
+                // Show success message
+                alert("Investigator added successfully!");
+            } catch (error) {
+                console.error("Error adding investigator:", error);
+                alert("Failed to add investigator. Please try again.");
+            }
         }
     };
 
@@ -144,269 +187,323 @@ const StudiesDashboard = () => {
             </div>
 
             <div className="dashboard-content">
-                {isSponsor ? (
-                    // Sponsor view - all studies
-                    <div className="studies-grid">
-                        {studies.map((study) => (
-                            <div
-                                key={study.id}
-                                className="study-card"
-                                onClick={() => handleStudyClick(study)}
-                            >
-                                <div className="study-header">
-                                    <div className="study-title">
-                                        <h3>{study.title}</h3>
-                                        <span className="study-id">
-                                            {study.id}
-                                        </span>
-                                    </div>
-                                    <div className="study-status">
-                                        <span
-                                            className="status-badge"
-                                            style={{
-                                                backgroundColor: getStatusColor(
-                                                    study.status
-                                                ),
-                                            }}
-                                        >
-                                            {getStatusIcon(study.status)}{" "}
-                                            {study.status.toUpperCase()}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="study-details">
-                                    <div className="detail-item">
-                                        <span className="label">Sponsor:</span>
-                                        <span className="value">
-                                            {study.sponsor}
-                                        </span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <span className="label">Sites:</span>
-                                        <span className="value">
-                                            {study.getActiveSites()}/
-                                            {study.getTotalSites()} active
-                                        </span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <span className="label">Created:</span>
-                                        <span className="value">
-                                            {study.createdAt.toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="study-investigator">
-                                    <div className="detail-item">
-                                        <span className="label">
-                                            Principal Investigator:
-                                        </span>
-                                        <span className="value">
-                                            {study.hasPrincipalInvestigator() ? (
-                                                <div className="investigator-info">
-                                                    <span className="investigator-name">
-                                                        {
-                                                            study
-                                                                .principalInvestigator
-                                                                .name
-                                                        }
-                                                    </span>
-                                                    <span className="investigator-details">
-                                                        {
-                                                            study
-                                                                .principalInvestigator
-                                                                .institution
-                                                        }{" "}
-                                                        •{" "}
-                                                        {
-                                                            study
-                                                                .principalInvestigator
-                                                                .specialty
-                                                        }
-                                                    </span>
-                                                </div>
-                                            ) : (
-                                                <div className="missing-investigator">
-                                                    <span className="warning-icon">
-                                                        ⚠️
-                                                    </span>
-                                                    <span className="warning-text">
-                                                        Missing Investigator
-                                                    </span>
-                                                    {isSponsor && (
-                                                        <button
-                                                            className="add-investigator-btn"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleAddInvestigator(
-                                                                    study
-                                                                );
-                                                            }}
-                                                        >
-                                                            Add Investigator
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="study-files">
-                                    <div className="file-section">
-                                        <h4>Protocol</h4>
-                                        <div className="file-status">
-                                            <span className="file-icon">
-                                                📄
-                                            </span>
-                                            <span className="file-name">
-                                                Protocol Document
-                                            </span>
-                                            <span className="file-status-badge approved">
-                                                ✓
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="file-section">
-                                        <h4>eSource Files</h4>
-                                        <div className="file-count">
-                                            {study.eSourceFiles.length} file
-                                            {study.eSourceFiles.length !== 1
-                                                ? "s"
-                                                : ""}
-                                        </div>
-                                    </div>
-
-                                    <div className="file-section">
-                                        <h4>CRF Files</h4>
-                                        <div className="file-count">
-                                            {study.crfFiles.length} file
-                                            {study.crfFiles.length !== 1
-                                                ? "s"
-                                                : ""}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                {/* Loading and Error States */}
+                {loading && (
+                    <div className="loading-container">
+                        <div className="loading-spinner"></div>
+                        <p>Loading studies...</p>
                     </div>
-                ) : isInvestigator ? (
-                    // Investigator view - only assigned studies
-                    <div className="studies-grid">
-                        {studies
-                            .filter((study) =>
-                                study.sites.some(
-                                    (site) =>
-                                        site.investigator === user.getFullName()
-                                )
-                            )
-                            .map((study) => (
-                                <div
-                                    key={study.id}
-                                    className="study-card investigator-card"
-                                    onClick={() => handleStudyClick(study)}
-                                >
-                                    <div className="study-header">
-                                        <div className="study-title">
-                                            <h3>{study.title}</h3>
-                                            <span className="study-id">
-                                                {study.id}
-                                            </span>
-                                        </div>
-                                        <div className="study-status">
-                                            <span
-                                                className="status-badge"
-                                                style={{
-                                                    backgroundColor:
-                                                        getStatusColor(
-                                                            study.status
-                                                        ),
-                                                }}
-                                            >
-                                                {getStatusIcon(study.status)}{" "}
-                                                {study.status.toUpperCase()}
-                                            </span>
-                                        </div>
-                                    </div>
+                )}
 
-                                    <div className="study-details">
-                                        <div className="detail-item">
-                                            <span className="label">
-                                                Your Site:
-                                            </span>
-                                            <span className="value">
-                                                {
-                                                    study.sites.find(
-                                                        (site) =>
-                                                            site.investigator ===
-                                                            user.getFullName()
-                                                    )?.name
-                                                }
-                                            </span>
-                                        </div>
-                                        <div className="detail-item">
-                                            <span className="label">
-                                                Sponsor:
-                                            </span>
-                                            <span className="value">
-                                                {study.sponsor}
-                                            </span>
-                                        </div>
-                                    </div>
+                {error && (
+                    <div className="error-container">
+                        <p className="error-message">{error}</p>
+                        <button
+                            className="retry-btn"
+                            onClick={() => window.location.reload()}
+                        >
+                            Retry
+                        </button>
+                    </div>
+                )}
 
-                                    <div className="investigator-actions">
-                                        <div className="action-section">
-                                            <h4>Your Uploads</h4>
-                                            <div className="upload-status">
-                                                <div className="upload-item">
-                                                    <span className="upload-icon">
-                                                        📤
+                {!loading && !error && (
+                    <>
+                        {isSponsor ? (
+                            // Sponsor view - all studies
+                            <div className="studies-grid">
+                                {studies.map((study) => (
+                                    <div
+                                        key={study.id}
+                                        className="study-card"
+                                        onClick={() => handleStudyClick(study)}
+                                    >
+                                        <div className="study-header">
+                                            <div className="study-title">
+                                                <h3>{study.title}</h3>
+                                                <span className="study-id">
+                                                    {study.id}
+                                                </span>
+                                            </div>
+                                            <div className="study-status">
+                                                <span
+                                                    className="status-badge"
+                                                    style={{
+                                                        backgroundColor:
+                                                            getStatusColor(
+                                                                study.status
+                                                            ),
+                                                    }}
+                                                >
+                                                    {getStatusIcon(
+                                                        study.status
+                                                    )}{" "}
+                                                    {study.status.toUpperCase()}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="study-details">
+                                            <div className="detail-item">
+                                                <span className="label">
+                                                    Sponsor:
+                                                </span>
+                                                <span className="value">
+                                                    {study.sponsor}
+                                                </span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="label">
+                                                    Sites:
+                                                </span>
+                                                <span className="value">
+                                                    {study.getActiveSites()}/
+                                                    {study.getTotalSites()}{" "}
+                                                    active
+                                                </span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="label">
+                                                    Created:
+                                                </span>
+                                                <span className="value">
+                                                    {study.createdAt.toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="study-investigator">
+                                            <div className="detail-item">
+                                                <span className="label">
+                                                    Principal Investigator:
+                                                </span>
+                                                <span className="value">
+                                                    {study.hasPrincipalInvestigator() ? (
+                                                        <div className="investigator-info">
+                                                            <span className="investigator-name">
+                                                                {
+                                                                    study
+                                                                        .principalInvestigator
+                                                                        .name
+                                                                }
+                                                            </span>
+                                                            <span className="investigator-details">
+                                                                {
+                                                                    study
+                                                                        .principalInvestigator
+                                                                        .institution
+                                                                }{" "}
+                                                                •{" "}
+                                                                {
+                                                                    study
+                                                                        .principalInvestigator
+                                                                        .specialty
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="missing-investigator">
+                                                            <span className="warning-icon">
+                                                                ⚠️
+                                                            </span>
+                                                            <span className="warning-text">
+                                                                Missing
+                                                                Investigator
+                                                            </span>
+                                                            {isSponsor && (
+                                                                <button
+                                                                    className="add-investigator-btn"
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        e.stopPropagation();
+                                                                        handleAddInvestigator(
+                                                                            study
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    Add
+                                                                    Investigator
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="study-files">
+                                            <div className="file-section">
+                                                <h4>Protocol</h4>
+                                                <div className="file-status">
+                                                    <span className="file-icon">
+                                                        📄
                                                     </span>
-                                                    <span className="upload-label">
-                                                        eSource Files
+                                                    <span className="file-name">
+                                                        Protocol Document
                                                     </span>
-                                                    <span className="upload-count">
-                                                        {
-                                                            study.eSourceFiles.filter(
-                                                                (file) =>
-                                                                    file.uploadedBy ===
-                                                                    user.getFullName()
-                                                            ).length
-                                                        }
+                                                    <span className="file-status-badge approved">
+                                                        ✓
                                                     </span>
                                                 </div>
-                                                <div className="upload-item">
-                                                    <span className="upload-icon">
-                                                        📤
-                                                    </span>
-                                                    <span className="upload-label">
-                                                        CRF Files
-                                                    </span>
-                                                    <span className="upload-count">
-                                                        {
-                                                            study.crfFiles.filter(
-                                                                (file) =>
-                                                                    file.uploadedBy ===
-                                                                    user.getFullName()
-                                                            ).length
-                                                        }
-                                                    </span>
+                                            </div>
+
+                                            <div className="file-section">
+                                                <h4>eSource Files</h4>
+                                                <div className="file-count">
+                                                    {study.eSourceFiles.length}{" "}
+                                                    file
+                                                    {study.eSourceFiles
+                                                        .length !== 1
+                                                        ? "s"
+                                                        : ""}
+                                                </div>
+                                            </div>
+
+                                            <div className="file-section">
+                                                <h4>CRF Files</h4>
+                                                <div className="file-count">
+                                                    {study.crfFiles.length} file
+                                                    {study.crfFiles.length !== 1
+                                                        ? "s"
+                                                        : ""}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                    </div>
-                ) : (
-                    <div className="no-access">
-                        <h2>Access Denied</h2>
-                        <p>You don't have permission to view studies.</p>
-                    </div>
+                                ))}
+                            </div>
+                        ) : isInvestigator ? (
+                            // Investigator view - only assigned studies
+                            <div className="studies-grid">
+                                {studies
+                                    .filter((study) =>
+                                        study.sites.some(
+                                            (site) =>
+                                                site.investigator ===
+                                                user.getFullName()
+                                        )
+                                    )
+                                    .map((study) => (
+                                        <div
+                                            key={study.id}
+                                            className="study-card investigator-card"
+                                            onClick={() =>
+                                                handleStudyClick(study)
+                                            }
+                                        >
+                                            <div className="study-header">
+                                                <div className="study-title">
+                                                    <h3>{study.title}</h3>
+                                                    <span className="study-id">
+                                                        {study.id}
+                                                    </span>
+                                                </div>
+                                                <div className="study-status">
+                                                    <span
+                                                        className="status-badge"
+                                                        style={{
+                                                            backgroundColor:
+                                                                getStatusColor(
+                                                                    study.status
+                                                                ),
+                                                        }}
+                                                    >
+                                                        {getStatusIcon(
+                                                            study.status
+                                                        )}{" "}
+                                                        {study.status.toUpperCase()}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="study-details">
+                                                <div className="detail-item">
+                                                    <span className="label">
+                                                        Your Site:
+                                                    </span>
+                                                    <span className="value">
+                                                        {
+                                                            study.sites.find(
+                                                                (site) =>
+                                                                    site.investigator ===
+                                                                    user.getFullName()
+                                                            )?.name
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="label">
+                                                        Sponsor:
+                                                    </span>
+                                                    <span className="value">
+                                                        {study.sponsor}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="investigator-actions">
+                                                <div className="action-section">
+                                                    <h4>Your Uploads</h4>
+                                                    <div className="upload-status">
+                                                        <div className="upload-item">
+                                                            <span className="upload-icon">
+                                                                📤
+                                                            </span>
+                                                            <span className="upload-label">
+                                                                eSource Files
+                                                            </span>
+                                                            <span className="upload-count">
+                                                                {
+                                                                    study.eSourceFiles.filter(
+                                                                        (
+                                                                            file
+                                                                        ) =>
+                                                                            file.uploadedBy ===
+                                                                            user.getFullName()
+                                                                    ).length
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                        <div className="upload-item">
+                                                            <span className="upload-icon">
+                                                                📤
+                                                            </span>
+                                                            <span className="upload-label">
+                                                                CRF Files
+                                                            </span>
+                                                            <span className="upload-count">
+                                                                {
+                                                                    study.crfFiles.filter(
+                                                                        (
+                                                                            file
+                                                                        ) =>
+                                                                            file.uploadedBy ===
+                                                                            user.getFullName()
+                                                                    ).length
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                            </div>
+                        ) : (
+                            <div className="no-access">
+                                <h2>Access Denied</h2>
+                                <p>
+                                    You don't have permission to view studies.
+                                </p>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
+
+            {/* Backend Test Component (Development Only) */}
+            {process.env.NODE_ENV === "development" && <BackendTest />}
 
             {/* Investigator Modal */}
             {showInvestigatorModal && (
