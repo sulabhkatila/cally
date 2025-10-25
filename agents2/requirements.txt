@@ -1,0 +1,7 @@
+# Core dependencies for agents
+python-dotenv>=1.0.0
+google-genai>=0.2.0
+uagents>=1.0.0
+
+# Optional but recommended
+typing-extensions>=4.0.0
