@@ -16,16 +16,18 @@ def setup_users_database():
     print("Setting up users database...")
 
     total_users = 0
+    added_users = 0
     for company, users in MOCK_USERS.items():
-        print(f"  - Adding {len(users)} users from {company}")
+        print(f"  - Processing {len(users)} users from {company}")
         total_users += len(users)
 
         # In a real database, you would save each user here
         # For now, we're just using the mock data
         for user in users:
             print(f"    * {user.get_full_name()} ({user.role}) - {user.email_address}")
+            added_users += 1
 
-    print(f"✅ Successfully setup {total_users} users")
+    print(f"✅ Successfully processed {total_users} users")
     return total_users
 
 
@@ -35,7 +37,7 @@ def setup_studies_database():
 
     total_studies = 0
     for study in MOCK_STUDIES:
-        print(f"  - Adding study: {study.title} ({study.id})")
+        print(f"  - Processing study: {study.title} ({study.id})")
         print(f"    * Sponsor: {study.sponsor}")
         print(f"    * Status: {study.status}")
         print(
@@ -52,7 +54,7 @@ def setup_studies_database():
         )
         total_studies += 1
 
-    print(f"✅ Successfully setup {total_studies} studies")
+    print(f"✅ Successfully processed {total_studies} studies")
     return total_studies
 
 
@@ -64,6 +66,16 @@ def setup_database():
     print()
 
     try:
+        # Import database manager
+        from database_manager import db_manager, get_database_statistics
+
+        # Ensure data is loaded
+        print("Initializing database...")
+        db_manager.ensure_data_loaded()
+
+        # Get current statistics
+        stats = get_database_statistics()
+
         # Setup users
         user_count = setup_users_database()
         print()
@@ -75,8 +87,9 @@ def setup_database():
         print("=" * 60)
         print("DATABASE SETUP COMPLETED")
         print("=" * 60)
-        print(f"Total Users: {user_count}")
-        print(f"Total Studies: {study_count}")
+        print(f"Total Users: {stats['total_users']}")
+        print(f"Total Studies: {stats['total_studies']}")
+        print(f"Studies without PI: {stats['studies_without_investigator']}")
         print()
         print("The database is now ready for use!")
         print("You can start the server with: python start_server.py")
@@ -92,10 +105,15 @@ def reset_database():
     print("Resetting database...")
     print("⚠️  This will clear all existing data!")
 
-    # In a real database, you would clear the tables here
-    # For now, we're just using mock data, so this is a no-op
-    print("✅ Database reset completed")
-    print("Note: Using in-memory mock data - no persistent data to clear")
+    try:
+        from database_manager import db_manager
+
+        db_manager.clear_all_data()
+        print("✅ Database reset completed")
+        print("All data has been cleared from memory")
+    except Exception as e:
+        print(f"❌ Error resetting database: {e}")
+        sys.exit(1)
 
 
 def show_database_status():
@@ -104,30 +122,38 @@ def show_database_status():
     print("DATABASE STATUS")
     print("=" * 60)
 
-    # Count users
-    total_users = sum(len(users) for users in MOCK_USERS.values())
-    print(f"Users: {total_users}")
-    for company, users in MOCK_USERS.items():
-        print(f"  - {company}: {len(users)} users")
+    try:
+        from database_manager import db_manager, get_database_statistics
 
-    print()
+        # Get current statistics
+        stats = get_database_statistics()
 
-    # Count studies
-    print(f"Studies: {len(MOCK_STUDIES)}")
-    for study in MOCK_STUDIES:
-        status_icon = (
-            "🟢"
-            if study.status == "active"
-            else "🟡" if study.status == "draft" else "🔴"
-        )
-        pi_icon = "👤" if study.has_principal_investigator() else "❌"
-        print(f"  - {status_icon} {study.id}: {study.title}")
-        print(
-            f"    {pi_icon} PI: {'Yes' if study.has_principal_investigator() else 'No'}"
-        )
-        print(f"    🏥 Sites: {study.get_active_sites()}/{study.get_total_sites()}")
+        print(f"Users: {stats['total_users']}")
+        for company, count in stats["users_by_company"].items():
+            print(f"  - {company}: {count} users")
 
-    print("=" * 60)
+        print()
+
+        print(f"Studies: {stats['total_studies']}")
+        studies = db_manager.get_all_studies()
+        for study in studies:
+            status_icon = (
+                "🟢"
+                if study.status == "active"
+                else "🟡" if study.status == "draft" else "🔴"
+            )
+            pi_icon = "👤" if study.has_principal_investigator() else "❌"
+            print(f"  - {status_icon} {study.id}: {study.title}")
+            print(
+                f"    {pi_icon} PI: {'Yes' if study.has_principal_investigator() else 'No'}"
+            )
+            print(f"    🏥 Sites: {study.get_active_sites()}/{study.get_total_sites()}")
+
+        print("=" * 60)
+
+    except Exception as e:
+        print(f"❌ Error getting database status: {e}")
+        print("=" * 60)
 
 
 def main():

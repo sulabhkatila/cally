@@ -26,6 +26,25 @@ app = Flask(__name__)
 
 # Configuration
 UPLOAD_FOLDER = "uploads"
+
+
+# Initialize database on startup
+def initialize_database():
+    """Initialize the database with mock data on server startup."""
+    try:
+        print("Initializing database...")
+        db_manager.ensure_data_loaded()
+        stats = get_database_statistics()
+        print(f"✅ Database initialized successfully!")
+        print(f"   - Users: {stats['total_users']}")
+        print(f"   - Studies: {stats['total_studies']}")
+        print(f"   - Studies without PI: {stats['studies_without_investigator']}")
+    except Exception as e:
+        print(f"❌ Error initializing database: {e}")
+
+
+# Initialize database when the app starts
+initialize_database()
 ALLOWED_EXTENSIONS = {"pdf", "csv"}
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
 
@@ -351,7 +370,7 @@ def get_study(study_id):
 
 
 @app.route("/api/studies/<study_id>/investigator", methods=["POST"])
-def add_investigator_to_study(study_id):
+def add_investigator_to_study_endpoint(study_id):
     """Add principal investigator to a study."""
     try:
         study = get_study_by_id(study_id)

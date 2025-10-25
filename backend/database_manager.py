@@ -21,14 +21,16 @@ class DatabaseManager:
 
     def _initialize_data(self):
         """Initialize the database with mock data."""
-        # Load users
+        # Load users (only if not already loaded)
         for company, users in MOCK_USERS.items():
             for user in users:
-                self.users[user.email_address] = user
+                if user.email_address not in self.users:
+                    self.users[user.email_address] = user
 
-        # Load studies
+        # Load studies (only if not already loaded)
         for study in MOCK_STUDIES:
-            self.studies[study.id] = study
+            if study.id not in self.studies:
+                self.studies[study.id] = study
 
     # User operations
     def get_all_users(self) -> List[User]:
@@ -169,6 +171,10 @@ class DatabaseManager:
     def reset_to_mock_data(self):
         """Reset database to initial mock data."""
         self.clear_all_data()
+        self._initialize_data()
+
+    def ensure_data_loaded(self):
+        """Ensure all mock data is loaded (safe to call multiple times)."""
         self._initialize_data()
 
     def export_data(self) -> Dict[str, Any]:

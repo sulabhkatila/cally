@@ -78,12 +78,11 @@ The server will start on `http://localhost:5001`
 
 ### Database Setup
 
-The backend includes a setup script to initialize the database with users and studies:
+**The database is automatically initialized when the server starts!** No manual setup required.
+
+The backend includes a setup script for manual database management:
 
 ```bash
-# Setup database with initial data
-python setup_database.py setup
-
 # Show database status
 python setup_database.py status
 
@@ -93,6 +92,13 @@ python setup_database.py reset
 # Show help
 python setup_database.py help
 ```
+
+**Automatic Setup Features:**
+
+-   ✅ Database initializes automatically on server startup
+-   ✅ Prevents duplicate entries (safe to restart server)
+-   ✅ Loads all mock users and studies
+-   ✅ Ready to use immediately
 
 ### Testing the API
 
@@ -106,6 +112,12 @@ Or run the demo to see the setup in action:
 
 ```bash
 python demo_setup.py
+```
+
+Or test the automatic setup functionality:
+
+```bash
+python test_auto_setup.py
 ```
 
 ### API Endpoints
@@ -314,6 +326,7 @@ backend/
 ├── database_manager.py       # Database management and operations
 ├── setup_database.py         # Database setup and initialization script
 ├── demo_setup.py             # Demonstration of database setup
+├── test_auto_setup.py        # Test automatic database setup
 ├── config.py                 # Configuration management
 ├── start_server.py           # Server startup script
 ├── test_endpoints.py         # API endpoint testing script
