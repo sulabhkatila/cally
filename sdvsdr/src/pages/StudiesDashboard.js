@@ -136,7 +136,7 @@ const StudiesDashboard = () => {
         try {
             // Trigger access request to investigator's site
             const response = await fetch(
-                "http://localhost:5003/api/request-access",
+                "http://localhost:5500/api/request-access",
                 {
                     method: "POST",
                     headers: {

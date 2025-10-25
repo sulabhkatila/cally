@@ -1,22 +1,58 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-const API_URL = "http://localhost:5003";
+// Load backend URL from config or use default
+const getBackendPort = async () => {
+    try {
+        const response = await fetch("/config.json");
+        const config = await response.json();
+        return config.backend_port || 5500;
+    } catch (error) {
+        console.warn("Could not load config.json, using default port 5500");
+        return 5500;
+    }
+};
+
+// For now, we'll use a simple approach - read from config on mount
+let API_URL = "http://localhost:5500"; // Will be updated on mount
 
 function App() {
     const [patients, setPatients] = useState({});
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [showAccessPopup, setShowAccessPopup] = useState(false);
     const [accessMessage, setAccessMessage] = useState("");
+    const [backendPort, setBackendPort] = useState(5500); // Default port
     const wsRef = useRef(null);
+
+    // Load backend port from config
+    useEffect(() => {
+        const loadConfig = async () => {
+            try {
+                const response = await fetch("/config.json");
+                const config = await response.json();
+                setBackendPort(config.backend_port || 5500);
+                console.log(
+                    `Backend port loaded from config: ${config.backend_port}`
+                );
+            } catch (error) {
+                console.warn(
+                    "Could not load config.json, using default port 5500"
+                );
+                setBackendPort(5500);
+            }
+        };
+        loadConfig();
+    }, []);
 
     // WebSocket connection
     useEffect(() => {
         // Note: In production, you would use wss:// for secure WebSocket
         // For now, we'll simulate WebSocket with polling
         const connectWebSocket = () => {
-            // Simulated WebSocket - in production use: const ws = new WebSocket('ws://localhost:5003');
-            console.log("WebSocket connection established");
+            // Simulated WebSocket - in production use: const ws = new WebSocket(`ws://localhost:${backendPort}`);
+            console.log(
+                `WebSocket connection established on port ${backendPort}`
+            );
         };
 
         connectWebSocket();
@@ -26,7 +62,7 @@ function App() {
                 wsRef.current.close();
             }
         };
-    }, []);
+    }, [backendPort]);
 
     // Simulate WebSocket messages with polling
     useEffect(() => {
@@ -35,7 +71,7 @@ function App() {
                 // In production, this would be real WebSocket message handling
                 // For demo, we'll check via HTTP endpoint
                 const response = await fetch(
-                    `${API_URL}/api/check-access-request`
+                    `http://localhost:${backendPort}/api/check-access-request`
                 );
                 if (response.ok) {
                     const data = await response.json();
@@ -55,13 +91,15 @@ function App() {
         const interval = setInterval(pollForAccessRequests, 5000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [backendPort]);
 
     // Fetch patients on load
     useEffect(() => {
         const fetchPatients = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/patients`);
+                const response = await fetch(
+                    `http://localhost:${backendPort}/api/patients`
+                );
                 const data = await response.json();
                 setPatients(data.patients || {});
             } catch (error) {
@@ -70,12 +108,12 @@ function App() {
         };
 
         fetchPatients();
-    }, []);
+    }, [backendPort]);
 
     const handlePatientClick = async (patientId) => {
         try {
             const response = await fetch(
-                `${API_URL}/api/patients/${patientId}`
+                `http://localhost:${backendPort}/api/patients/${patientId}`
             );
             const data = await response.json();
             setSelectedPatient(data);
@@ -87,7 +125,7 @@ function App() {
     const handleAccessResponse = async (granted) => {
         // Send response to backend
         try {
-            await fetch(`${API_URL}/api/access-response`, {
+            await fetch(`http://localhost:${backendPort}/api/access-response`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -103,7 +141,7 @@ function App() {
     };
 
     const downloadFile = (fileUrl, filename) => {
-        window.open(`${API_URL}${fileUrl}`, "_blank");
+        window.open(`http://localhost:${backendPort}${fileUrl}`, "_blank");
     };
 
     return (

@@ -16,6 +16,23 @@ CORS(app)
 # Configuration
 BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "patients"
+CONFIG_FILE = BASE_DIR / "config.json"
+
+
+# Load configuration
+def load_config():
+    """Load configuration from config.json"""
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            config = json.load(f)
+            return config
+    except Exception as e:
+        print(f"Warning: Could not load config.json: {e}")
+        return {"backend_port": 5500}  # Default port
+
+
+config = load_config()
+BACKEND_PORT = config.get("backend_port", 5500)
 
 # WebSocket management
 connected_clients = []
@@ -191,8 +208,8 @@ if __name__ == "__main__":
         patient_count = len([d for d in DATA_DIR.iterdir() if d.is_dir()])
         print(f"👥 Patients: {patient_count}")
 
-    print("\n🌐 Backend Server running on http://localhost:5003")
-    print("📋 API: http://localhost:5003/api/patients")
+    print(f"\n🌐 Backend Server running on http://localhost:{BACKEND_PORT}")
+    print(f"📋 API: http://localhost:{BACKEND_PORT}/api/patients")
     print("🔌 Ready for WebSocket connections")
 
-    app.run(port=5003, debug=True)
+    app.run(port=BACKEND_PORT, debug=True)
