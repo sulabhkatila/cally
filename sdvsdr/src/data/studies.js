@@ -1,6 +1,15 @@
 // Study data structure and mock data
 export class Study {
-    constructor(id, title, protocol, sponsor, status, createdAt, sites = []) {
+    constructor(
+        id,
+        title,
+        protocol,
+        sponsor,
+        status,
+        createdAt,
+        sites = [],
+        principalInvestigator = null
+    ) {
         this.id = id;
         this.title = title;
         this.protocol = protocol;
@@ -8,6 +17,7 @@ export class Study {
         this.status = status; // 'draft', 'active', 'completed', 'on-hold'
         this.createdAt = createdAt;
         this.sites = sites;
+        this.principalInvestigator = principalInvestigator;
         this.eSourceFiles = [];
         this.crfFiles = [];
     }
@@ -30,6 +40,17 @@ export class Study {
 
     getActiveSites() {
         return this.sites.filter((site) => site.status === "active").length;
+    }
+
+    hasPrincipalInvestigator() {
+        return (
+            this.principalInvestigator !== null &&
+            this.principalInvestigator !== undefined
+        );
+    }
+
+    setPrincipalInvestigator(investigator) {
+        this.principalInvestigator = investigator;
     }
 }
 
@@ -104,7 +125,13 @@ export const mockStudies = [
                 "Cleveland, OH",
                 "pending"
             ),
-        ]
+        ],
+        {
+            name: "Dr. Sarah Johnson",
+            email: "sarah.johnson@regeneron.com",
+            institution: "Johns Hopkins Hospital",
+            specialty: "Oncology",
+        }
     ),
     new Study(
         "STD-002",
@@ -128,7 +155,8 @@ export const mockStudies = [
                 "Stanford, CA",
                 "pending"
             ),
-        ]
+        ],
+        null // No principal investigator assigned yet
     ),
     new Study(
         "STD-003",
@@ -152,7 +180,13 @@ export const mockStudies = [
                 "New York, NY",
                 "active"
             ),
-        ]
+        ],
+        {
+            name: "Dr. James Wilson",
+            email: "james.wilson@site.com",
+            institution: "UCLA Medical Center",
+            specialty: "Neurology",
+        }
     ),
 ];
 

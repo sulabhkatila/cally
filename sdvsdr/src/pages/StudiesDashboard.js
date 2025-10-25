@@ -8,8 +8,16 @@ import "./StudiesDashboard.css";
 const StudiesDashboard = () => {
     const navigate = useNavigate();
     const user = getUser();
-    const [studies] = useState(mockStudies);
+    const [studies, setStudies] = useState(mockStudies);
     const [selectedStudy, setSelectedStudy] = useState(null);
+    const [showInvestigatorModal, setShowInvestigatorModal] = useState(false);
+    const [currentStudy, setCurrentStudy] = useState(null);
+    const [investigatorData, setInvestigatorData] = useState({
+        name: "",
+        email: "",
+        institution: "",
+        specialty: "",
+    });
 
     const isSponsor = user?.role === "Sponsor";
     const isInvestigator = user?.role === "Investigator";
@@ -21,6 +29,57 @@ const StudiesDashboard = () => {
     const handleStudyClick = (study) => {
         setSelectedStudy(study);
         navigate(`/study/${study.id}`);
+    };
+
+    const handleAddInvestigator = (study) => {
+        setCurrentStudy(study);
+        setShowInvestigatorModal(true);
+        setInvestigatorData({
+            name: "",
+            email: "",
+            institution: "",
+            specialty: "",
+        });
+    };
+
+    const handleInvestigatorInputChange = (e) => {
+        const { name, value } = e.target;
+        setInvestigatorData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleSaveInvestigator = () => {
+        if (
+            currentStudy &&
+            investigatorData.name &&
+            investigatorData.email &&
+            investigatorData.institution &&
+            investigatorData.specialty
+        ) {
+            // Update the study with the new investigator
+            const updatedStudies = studies.map((study) => {
+                if (study.id === currentStudy.id) {
+                    study.setPrincipalInvestigator(investigatorData);
+                }
+                return study;
+            });
+            setStudies(updatedStudies);
+            setShowInvestigatorModal(false);
+            setCurrentStudy(null);
+        }
+    };
+
+    const handleCloseInvestigatorModal = () => {
+        setShowInvestigatorModal(false);
+        setCurrentStudy(null);
+        setInvestigatorData({
+            name: "",
+            email: "",
+            institution: "",
+            specialty: "",
+        });
     };
 
     const getStatusColor = (status) => {
@@ -134,6 +193,62 @@ const StudiesDashboard = () => {
                                         <span className="label">Created:</span>
                                         <span className="value">
                                             {study.createdAt.toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="study-investigator">
+                                    <div className="detail-item">
+                                        <span className="label">
+                                            Principal Investigator:
+                                        </span>
+                                        <span className="value">
+                                            {study.hasPrincipalInvestigator() ? (
+                                                <div className="investigator-info">
+                                                    <span className="investigator-name">
+                                                        {
+                                                            study
+                                                                .principalInvestigator
+                                                                .name
+                                                        }
+                                                    </span>
+                                                    <span className="investigator-details">
+                                                        {
+                                                            study
+                                                                .principalInvestigator
+                                                                .institution
+                                                        }{" "}
+                                                        •{" "}
+                                                        {
+                                                            study
+                                                                .principalInvestigator
+                                                                .specialty
+                                                        }
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <div className="missing-investigator">
+                                                    <span className="warning-icon">
+                                                        ⚠️
+                                                    </span>
+                                                    <span className="warning-text">
+                                                        Missing Investigator
+                                                    </span>
+                                                    {isSponsor && (
+                                                        <button
+                                                            className="add-investigator-btn"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleAddInvestigator(
+                                                                    study
+                                                                );
+                                                            }}
+                                                        >
+                                                            Add Investigator
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
                                         </span>
                                     </div>
                                 </div>
@@ -292,6 +407,119 @@ const StudiesDashboard = () => {
                     </div>
                 )}
             </div>
+
+            {/* Investigator Modal */}
+            {showInvestigatorModal && (
+                <div
+                    className="modal-overlay"
+                    onClick={handleCloseInvestigatorModal}
+                >
+                    <div
+                        className="modal-content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="modal-header">
+                            <h2>Add Principal Investigator</h2>
+                            <button
+                                className="modal-close"
+                                onClick={handleCloseInvestigatorModal}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <p className="modal-description">
+                                Add a principal investigator for:{" "}
+                                <strong>{currentStudy?.title}</strong>
+                            </p>
+
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <label htmlFor="modalInvestigatorName">
+                                        Investigator Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="modalInvestigatorName"
+                                        name="name"
+                                        value={investigatorData.name}
+                                        onChange={handleInvestigatorInputChange}
+                                        placeholder="e.g., Dr. Sarah Johnson"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="modalInvestigatorEmail">
+                                        Email Address *
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="modalInvestigatorEmail"
+                                        name="email"
+                                        value={investigatorData.email}
+                                        onChange={handleInvestigatorInputChange}
+                                        placeholder="e.g., sarah.johnson@hospital.com"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="modalInvestigatorInstitution">
+                                        Institution *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="modalInvestigatorInstitution"
+                                        name="institution"
+                                        value={investigatorData.institution}
+                                        onChange={handleInvestigatorInputChange}
+                                        placeholder="e.g., Johns Hopkins Hospital"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="modalInvestigatorSpecialty">
+                                        Medical Specialty *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="modalInvestigatorSpecialty"
+                                        name="specialty"
+                                        value={investigatorData.specialty}
+                                        onChange={handleInvestigatorInputChange}
+                                        placeholder="e.g., Oncology, Cardiology"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                className="cancel-btn"
+                                onClick={handleCloseInvestigatorModal}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="submit-btn"
+                                onClick={handleSaveInvestigator}
+                                disabled={
+                                    !investigatorData.name ||
+                                    !investigatorData.email ||
+                                    !investigatorData.institution ||
+                                    !investigatorData.specialty
+                                }
+                            >
+                                Add Investigator
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

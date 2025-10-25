@@ -146,6 +146,13 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.section-description {
+  font-size: 14px;
+  color: #a0a0a0;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
 /* Form Grid */
 .form-grid {
   display: grid;

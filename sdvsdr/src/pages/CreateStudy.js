@@ -15,6 +15,12 @@ const CreateStudy = () => {
         indication: "",
         estimatedDuration: "",
         estimatedSubjects: "",
+        principalInvestigator: {
+            name: "",
+            email: "",
+            institution: "",
+            specialty: "",
+        },
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,6 +37,17 @@ const CreateStudy = () => {
         setFormData((prev) => ({
             ...prev,
             protocolFile: file,
+        }));
+    };
+
+    const handleInvestigatorChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            principalInvestigator: {
+                ...prev.principalInvestigator,
+                [name]: value,
+            },
         }));
     };
 
@@ -202,6 +219,76 @@ const CreateStudy = () => {
                                 placeholder="Any additional details about the study..."
                                 rows="3"
                             />
+                        </div>
+                    </div>
+
+                    <div className="form-section">
+                        <h2>Principal Investigator (Optional)</h2>
+                        <p className="section-description">
+                            You can add a principal investigator now or assign
+                            one later from the studies dashboard.
+                        </p>
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label htmlFor="investigatorName">
+                                    Investigator Name
+                                </label>
+                                <input
+                                    type="text"
+                                    id="investigatorName"
+                                    name="name"
+                                    value={formData.principalInvestigator.name}
+                                    onChange={handleInvestigatorChange}
+                                    placeholder="e.g., Dr. Sarah Johnson"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="investigatorEmail">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    id="investigatorEmail"
+                                    name="email"
+                                    value={formData.principalInvestigator.email}
+                                    onChange={handleInvestigatorChange}
+                                    placeholder="e.g., sarah.johnson@hospital.com"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="investigatorInstitution">
+                                    Institution
+                                </label>
+                                <input
+                                    type="text"
+                                    id="investigatorInstitution"
+                                    name="institution"
+                                    value={
+                                        formData.principalInvestigator
+                                            .institution
+                                    }
+                                    onChange={handleInvestigatorChange}
+                                    placeholder="e.g., Johns Hopkins Hospital"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="investigatorSpecialty">
+                                    Medical Specialty
+                                </label>
+                                <input
+                                    type="text"
+                                    id="investigatorSpecialty"
+                                    name="specialty"
+                                    value={
+                                        formData.principalInvestigator.specialty
+                                    }
+                                    onChange={handleInvestigatorChange}
+                                    placeholder="e.g., Oncology, Cardiology"
+                                />
+                            </div>
                         </div>
                     </div>
 
