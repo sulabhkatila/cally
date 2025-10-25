@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import CreateStudy from "./pages/CreateStudy";
-import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import StudiesDashboard from "./pages/StudiesDashboard";
 import { getUser } from "./utils/userStorage.js";
@@ -18,10 +17,10 @@ const ProtectedRoute = ({ children }) => {
     return user ? children : <Navigate to="/login" replace />;
 };
 
-// Public Route Component (redirect to dashboard if already logged in)
+// Public Route Component (redirect to studies if already logged in)
 const PublicRoute = ({ children }) => {
     const user = getUser();
-    return user ? <Navigate to="/dashboard" replace /> : children;
+    return user ? <Navigate to="/studies" replace /> : children;
 };
 
 function App() {
@@ -39,14 +38,6 @@ function App() {
                             <PublicRoute>
                                 <Login />
                             </PublicRoute>
-                        }
-                    />
-                    <Route
-                        path="/dashboard"
-                        element={
-                            <ProtectedRoute>
-                                <Dashboard />
-                            </ProtectedRoute>
                         }
                     />
                     <Route

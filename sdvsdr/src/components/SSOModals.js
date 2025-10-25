@@ -36,8 +36,8 @@ export const GoogleSSOModal = ({ onClose, selectedUser, setSelectedUser }) => {
                 selectedUser.getFullName()
             );
 
-            // Navigate to dashboard
-            navigate("/dashboard");
+            // Navigate to studies
+            navigate("/studies");
         }, 2000);
     };
 
@@ -273,8 +273,8 @@ export const VeeraSSOModal = ({ onClose, selectedUser, setSelectedUser }) => {
                 selectedUser.getFullName()
             );
 
-            // Navigate to dashboard
-            navigate("/dashboard");
+            // Navigate to studies
+            navigate("/studies");
         }, 2000);
     };
 
@@ -496,8 +496,8 @@ export const MedidataSSOModal = ({
                 selectedUser.getFullName()
             );
 
-            // Navigate to dashboard
-            navigate("/dashboard");
+            // Navigate to studies
+            navigate("/studies");
         }, 2000);
     };
 
