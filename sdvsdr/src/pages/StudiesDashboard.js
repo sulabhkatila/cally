@@ -411,11 +411,11 @@ const StudiesDashboard = () => {
             {/* Investigator Modal */}
             {showInvestigatorModal && (
                 <div
-                    className="modal-overlay"
+                    className="investigator-modal-overlay"
                     onClick={handleCloseInvestigatorModal}
                 >
                     <div
-                        className="modal-content"
+                        className="investigator-modal-content"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="modal-header">

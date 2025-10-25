@@ -453,8 +453,8 @@
   }
 }
 
-/* Modal Styles */
-.modal-overlay {
+/* Investigator Modal Styles */
+.investigator-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -465,11 +465,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
   padding: 20px;
 }
 
-.modal-content {
+.investigator-modal-content {
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(20px) saturate(1.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -481,7 +481,7 @@
   position: relative;
 }
 
-.modal-header {
+.investigator-modal-content .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -490,14 +490,14 @@
   margin-bottom: 24px;
 }
 
-.modal-header h2 {
+.investigator-modal-content .modal-header h2 {
   font-size: 20px;
   font-weight: 600;
   color: #ffffff;
   margin: 0;
 }
 
-.modal-close {
+.investigator-modal-content .modal-close {
   background: none;
   border: none;
   color: #a0a0a0;
@@ -513,28 +513,28 @@
   transition: all 0.3s ease;
 }
 
-.modal-close:hover {
+.investigator-modal-content .modal-close:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
 
-.modal-body {
+.investigator-modal-content .modal-body {
   padding: 0 24px 24px 24px;
 }
 
-.modal-description {
+.investigator-modal-content .modal-description {
   font-size: 14px;
   color: #a0a0a0;
   margin: 0 0 24px 0;
   line-height: 1.5;
 }
 
-.modal-description strong {
+.investigator-modal-content .modal-description strong {
   color: #ffffff;
   font-weight: 600;
 }
 
-.modal-actions {
+.investigator-modal-content .modal-actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
@@ -542,7 +542,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.modal-actions .cancel-btn {
+.investigator-modal-content .modal-actions .cancel-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
@@ -554,12 +554,12 @@
   transition: all 0.3s ease;
 }
 
-.modal-actions .cancel-btn:hover {
+.investigator-modal-content .modal-actions .cancel-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.modal-actions .submit-btn {
+.investigator-modal-content .modal-actions .submit-btn {
   background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%);
   color: white;
   border: none;
@@ -571,29 +571,29 @@
   transition: all 0.3s ease;
 }
 
-.modal-actions .submit-btn:hover:not(:disabled) {
+.investigator-modal-content .modal-actions .submit-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #3367d6 0%, #1a73e8 100%);
   transform: translateY(-1px);
 }
 
-.modal-actions .submit-btn:disabled {
+.investigator-modal-content .modal-actions .submit-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
 @media (max-width: 768px) {
-  .modal-content {
+  .investigator-modal-content {
     margin: 20px;
     max-width: calc(100vw - 40px);
   }
   
-  .modal-actions {
+  .investigator-modal-content .modal-actions {
     flex-direction: column;
   }
   
-  .modal-actions .cancel-btn,
-  .modal-actions .submit-btn {
+  .investigator-modal-content .modal-actions .cancel-btn,
+  .investigator-modal-content .modal-actions .submit-btn {
     width: 100%;
     justify-content: center;
   }
