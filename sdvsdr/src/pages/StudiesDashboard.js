@@ -153,9 +153,8 @@ const StudiesDashboard = () => {
             const data = await response.json();
 
             if (data.success) {
-                alert(
-                    `Access request sent to ${study.principalInvestigator.name}`
-                );
+                // Start polling for response
+                pollForAccessResponse(study);
             } else {
                 alert("Failed to send access request");
             }
@@ -163,6 +162,57 @@ const StudiesDashboard = () => {
             console.error("Error connecting to investigator:", error);
             alert("Failed to connect to investigator site");
         }
+    };
+
+    const pollForAccessResponse = async (study) => {
+        const maxAttempts = 60; // Wait up to 60 seconds
+        let attempts = 0;
+
+        const pollInterval = setInterval(async () => {
+            attempts++;
+
+            try {
+                const response = await fetch(
+                    "http://localhost:5500/api/check-access-response"
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // If we have a response (granted/denied)
+                    if (data.status !== "pending") {
+                        clearInterval(pollInterval);
+
+                        if (data.status === "granted") {
+                            alert(
+                                `✅ Access GRANTED by ${study.principalInvestigator.name}\n\nYou can now access their trial site data.`
+                            );
+                        } else if (data.status === "denied") {
+                            alert(
+                                `❌ Access DENIED by ${study.principalInvestigator.name}\n\nThey have declined your access request.`
+                            );
+                        } else {
+                            alert(`Access response received: ${data.status}`);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error polling for access response:", error);
+            }
+
+            // Stop polling after max attempts
+            if (attempts >= maxAttempts) {
+                clearInterval(pollInterval);
+                alert(
+                    "⏱️ No response received from investigator. The request may have timed out."
+                );
+            }
+        }, 1000); // Poll every 1 second
+
+        // Show initial alert
+        alert(
+            `⏳ Access request sent to ${study.principalInvestigator.name}\n\nWaiting for their response...`
+        );
     };
 
     const getStatusColor = (status) => {

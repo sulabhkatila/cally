@@ -37,6 +37,7 @@ BACKEND_PORT = config.get("backend_port", 5500)
 # WebSocket management
 connected_clients = []
 access_request_active = False
+access_response_status = "pending"  # 'pending', 'granted', 'denied'
 
 
 @app.route("/")
@@ -116,9 +117,10 @@ def serve_file(patient_id, filename):
 @app.route("/api/request-access", methods=["POST"])
 def request_access():
     """Trigger an access request popup to connected clients"""
-    global access_request_active
+    global access_request_active, access_response_status
 
     access_request_active = True
+    access_response_status = "pending"  # Reset response status
 
     # Broadcast to all connected WebSocket clients
     message = {
@@ -153,17 +155,33 @@ def check_access_request():
     )
 
 
+@app.route("/api/check-access-response")
+def check_access_response():
+    """Check the status of an access response"""
+    global access_response_status
+
+    return jsonify(
+        {
+            "status": access_response_status,
+            "granted": access_response_status == "granted",
+            "denied": access_response_status == "denied",
+            "pending": access_response_status == "pending",
+        }
+    )
+
+
 @app.route("/api/access-response", methods=["POST"])
 def access_response():
     """Handle access response from client"""
-    global access_request_active
+    global access_request_active, access_response_status
     from flask import request
 
     data = request.get_json()
     granted = data.get("granted", False)
 
-    # Clear the access request
+    # Clear the access request and set response status
     access_request_active = False
+    access_response_status = "granted" if granted else "denied"
 
     print(f"Access response received: {'Granted' if granted else 'Denied'}")
 
