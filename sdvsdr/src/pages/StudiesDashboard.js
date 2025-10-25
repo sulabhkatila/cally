@@ -125,6 +125,46 @@ const StudiesDashboard = () => {
         });
     };
 
+    const handleConnectToInvestigator = async (study, e) => {
+        e.stopPropagation();
+
+        if (!study.hasPrincipalInvestigator()) {
+            alert("Please add an investigator first before connecting.");
+            return;
+        }
+
+        try {
+            // Trigger access request to investigator's site
+            const response = await fetch(
+                "http://localhost:5003/api/request-access",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        study_id: study.id,
+                        investigator: study.principalInvestigator.name,
+                        message: `Access request for ${study.title}`,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(
+                    `Access request sent to ${study.principalInvestigator.name}`
+                );
+            } else {
+                alert("Failed to send access request");
+            }
+        } catch (error) {
+            console.error("Error connecting to investigator:", error);
+            alert("Failed to connect to investigator site");
+        }
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case "active":
@@ -370,6 +410,23 @@ const StudiesDashboard = () => {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* Connect to Investigator Button */}
+                                        {study.hasPrincipalInvestigator() && (
+                                            <div className="study-actions">
+                                                <button
+                                                    className="connect-investigator-btn"
+                                                    onClick={(e) =>
+                                                        handleConnectToInvestigator(
+                                                            study,
+                                                            e
+                                                        )
+                                                    }
+                                                >
+                                                    🔌 Connect to Investigator
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
