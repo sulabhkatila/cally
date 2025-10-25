@@ -9,14 +9,10 @@ const CreateStudy = () => {
     const user = getUser();
     const [formData, setFormData] = useState({
         title: "",
-        protocol: "",
+        protocolFile: null,
         description: "",
         phase: "",
         indication: "",
-        primaryEndpoint: "",
-        secondaryEndpoints: "",
-        inclusionCriteria: "",
-        exclusionCriteria: "",
         estimatedDuration: "",
         estimatedSubjects: "",
     });
@@ -27,6 +23,14 @@ const CreateStudy = () => {
         setFormData((prev) => ({
             ...prev,
             [name]: value,
+        }));
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setFormData((prev) => ({
+            ...prev,
+            protocolFile: file,
         }));
     };
 
@@ -169,18 +173,21 @@ const CreateStudy = () => {
                     <div className="form-section">
                         <h2>Protocol Details</h2>
                         <div className="form-group">
-                            <label htmlFor="protocol">
-                                Protocol Description *
+                            <label htmlFor="protocolFile">
+                                Protocol File *
                             </label>
-                            <textarea
-                                id="protocol"
-                                name="protocol"
-                                value={formData.protocol}
-                                onChange={handleInputChange}
-                                placeholder="Describe the study protocol, methodology, and objectives..."
-                                rows="4"
+                            <input
+                                type="file"
+                                id="protocolFile"
+                                name="protocolFile"
+                                onChange={handleFileChange}
+                                accept=".pdf,.doc,.docx,.txt"
                                 required
                             />
+                            <p className="file-help-text">
+                                Upload your study protocol document (PDF, DOC,
+                                DOCX, or TXT)
+                            </p>
                         </div>
 
                         <div className="form-group">
@@ -194,71 +201,6 @@ const CreateStudy = () => {
                                 onChange={handleInputChange}
                                 placeholder="Any additional details about the study..."
                                 rows="3"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-section">
-                        <h2>Study Endpoints</h2>
-                        <div className="form-group">
-                            <label htmlFor="primaryEndpoint">
-                                Primary Endpoint *
-                            </label>
-                            <textarea
-                                id="primaryEndpoint"
-                                name="primaryEndpoint"
-                                value={formData.primaryEndpoint}
-                                onChange={handleInputChange}
-                                placeholder="Define the primary endpoint of the study..."
-                                rows="3"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="secondaryEndpoints">
-                                Secondary Endpoints
-                            </label>
-                            <textarea
-                                id="secondaryEndpoints"
-                                name="secondaryEndpoints"
-                                value={formData.secondaryEndpoints}
-                                onChange={handleInputChange}
-                                placeholder="List any secondary endpoints..."
-                                rows="3"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-section">
-                        <h2>Eligibility Criteria</h2>
-                        <div className="form-group">
-                            <label htmlFor="inclusionCriteria">
-                                Inclusion Criteria *
-                            </label>
-                            <textarea
-                                id="inclusionCriteria"
-                                name="inclusionCriteria"
-                                value={formData.inclusionCriteria}
-                                onChange={handleInputChange}
-                                placeholder="List the inclusion criteria for study participants..."
-                                rows="4"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="exclusionCriteria">
-                                Exclusion Criteria *
-                            </label>
-                            <textarea
-                                id="exclusionCriteria"
-                                name="exclusionCriteria"
-                                value={formData.exclusionCriteria}
-                                onChange={handleInputChange}
-                                placeholder="List the exclusion criteria for study participants..."
-                                rows="4"
-                                required
                             />
                         </div>
                     </div>
