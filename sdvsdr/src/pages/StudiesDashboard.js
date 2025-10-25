@@ -21,6 +21,10 @@ const StudiesDashboard = () => {
         institution: "",
         specialty: "",
     });
+    const [showAgentModal, setShowAgentModal] = useState(false);
+    const [agentResponse, setAgentResponse] = useState("");
+    const [isQueryingAgent, setIsQueryingAgent] = useState(false);
+    const [connectedStudies, setConnectedStudies] = useState(new Set());
 
     const isSponsor = user?.role === "Sponsor";
     const isInvestigator = user?.role === "Investigator";
@@ -184,6 +188,10 @@ const StudiesDashboard = () => {
                         clearInterval(pollInterval);
 
                         if (data.status === "granted") {
+                            // Mark study as connected
+                            setConnectedStudies(
+                                (prev) => new Set([...prev, study.id])
+                            );
                             alert(
                                 `✅ Access GRANTED by ${study.principalInvestigator.name}\n\nYou can now access their trial site data.`
                             );
@@ -242,6 +250,50 @@ const StudiesDashboard = () => {
                 return "🔴";
             default:
                 return "⚪";
+        }
+    };
+
+    const handleQueryAgent = async (study, e) => {
+        e.stopPropagation();
+
+        try {
+            setIsQueryingAgent(true);
+            setShowAgentModal(true);
+            setAgentResponse("Querying ClinicalTriailAnalyzer agent...");
+
+            // Query the Fetch.ai agent
+            // TODO: Replace with actual Fetch.ai agent integration
+            // For now, we'll simulate the response
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            const agentMessage = `The Clinical Trial Analyzer agent is a specialized AI agent for clinical trial protocol analysis.
+
+**Key Capabilities:**
+• Analyzes clinical trial protocol text content
+• Extracts key trial information (objectives, endpoints, eligibility criteria)
+• Understands monitoring schedules and SDV requirements
+• Provides expert knowledge about clinical trial methodology
+• Answers questions about clinical trials and protocols
+
+**Agent Details:**
+• Powered by Google Gemini AI
+• Runs on Fetch.ai's decentralized agent network
+• Specialized in clinical trial protocol analysis
+
+**Integration:**
+The agent can help with:
+- Protocol text analysis and interpretation
+- Monitoring schedule extraction
+- Eligibility criteria analysis
+- SDV requirements identification
+- Regulatory compliance guidance`;
+
+            setAgentResponse(agentMessage);
+        } catch (error) {
+            console.error("Error querying agent:", error);
+            setAgentResponse("Error querying agent. Please try again later.");
+        } finally {
+            setIsQueryingAgent(false);
         }
     };
 
@@ -461,20 +513,37 @@ const StudiesDashboard = () => {
                                             </div>
                                         </div>
 
-                                        {/* Connect to Investigator Button */}
+                                        {/* Connect to Investigator Button or Query AI Agent Button */}
                                         {study.hasPrincipalInvestigator() && (
                                             <div className="study-actions">
-                                                <button
-                                                    className="connect-investigator-btn"
-                                                    onClick={(e) =>
-                                                        handleConnectToInvestigator(
-                                                            study,
-                                                            e
-                                                        )
-                                                    }
-                                                >
-                                                    🔌 Connect to Investigator
-                                                </button>
+                                                {connectedStudies.has(
+                                                    study.id
+                                                ) ? (
+                                                    <button
+                                                        className="query-agent-btn"
+                                                        onClick={(e) =>
+                                                            handleQueryAgent(
+                                                                study,
+                                                                e
+                                                            )
+                                                        }
+                                                    >
+                                                        🤖 Query AI Agent
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        className="connect-investigator-btn"
+                                                        onClick={(e) =>
+                                                            handleConnectToInvestigator(
+                                                                study,
+                                                                e
+                                                            )
+                                                        }
+                                                    >
+                                                        🔌 Connect to
+                                                        Investigator
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -611,6 +680,58 @@ const StudiesDashboard = () => {
 
             {/* Backend Test Component (Development Only) */}
             {process.env.NODE_ENV === "development" && <BackendTest />}
+
+            {/* Agent Response Modal */}
+            {showAgentModal && (
+                <div
+                    className="agent-modal-overlay"
+                    onClick={() => setShowAgentModal(false)}
+                >
+                    <div
+                        className="agent-modal-content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="modal-header">
+                            <h2>🤖 Clinical Trial Analyzer Agent</h2>
+                            <button
+                                className="modal-close"
+                                onClick={() => setShowAgentModal(false)}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            {isQueryingAgent ? (
+                                <div className="loading-agent">
+                                    <div className="loading-spinner"></div>
+                                    <p>Querying agent...</p>
+                                </div>
+                            ) : (
+                                <div className="agent-response">
+                                    <pre
+                                        style={{
+                                            whiteSpace: "pre-wrap",
+                                            fontFamily: "inherit",
+                                        }}
+                                    >
+                                        {agentResponse}
+                                    </pre>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                className="cancel-btn"
+                                onClick={() => setShowAgentModal(false)}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Investigator Modal */}
             {showInvestigatorModal && (
