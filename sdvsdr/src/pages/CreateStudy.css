@@ -702,6 +702,15 @@
   margin: 0 0 16px 0;
 }
 
+.plan-section h5 {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 24px 0 12px 0;
+  padding-left: 8px;
+  border-left: 3px solid #667eea;
+}
+
 .plan-section p {
   color: #e0e0e0;
   font-size: 14px;
