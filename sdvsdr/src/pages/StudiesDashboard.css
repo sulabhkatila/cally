@@ -335,6 +335,31 @@
   box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
 }
 
+/* Generate Monitoring Plan Button */
+.generate-monitoring-plan-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.generate-monitoring-plan-btn:hover {
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
 /* Agent Modal */
 .agent-modal-overlay {
   position: fixed;

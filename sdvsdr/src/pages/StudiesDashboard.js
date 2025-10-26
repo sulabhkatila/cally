@@ -82,6 +82,17 @@ const StudiesDashboard = () => {
         navigate(`/study/${study.id}`);
     };
 
+    const handleGenerateMonitoringPlan = (study, e) => {
+        e.stopPropagation();
+        // Navigate to create study page with pre-filled study data for monitoring plan generation
+        navigate("/create-study", {
+            state: {
+                generateMonitoringPlan: true,
+                studyData: study,
+            },
+        });
+    };
+
     const handleAddInvestigator = (study) => {
         setCurrentStudy(study);
         setShowInvestigatorModal(true);
@@ -634,39 +645,57 @@ The agent can help with:
                                             </div>
                                         </div>
 
-                                        {/* Connect to Investigator Button or Query AI Agent Button */}
-                                        {study.hasPrincipalInvestigator() && (
-                                            <div className="study-actions">
-                                                {connectedStudies.has(
-                                                    study.id
-                                                ) ? (
-                                                    <button
-                                                        className="query-agent-btn"
-                                                        onClick={(e) =>
-                                                            handleQueryAgent(
-                                                                study,
-                                                                e
-                                                            )
-                                                        }
-                                                    >
-                                                        🤖 Query AI Agent
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        className="connect-investigator-btn"
-                                                        onClick={(e) =>
-                                                            handleConnectToInvestigator(
-                                                                study,
-                                                                e
-                                                            )
-                                                        }
-                                                    >
-                                                        🔌 Connect to
-                                                        Investigator
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
+                                        {/* Study Action Buttons */}
+                                        <div className="study-actions">
+                                            {/* Generate Monitoring Plan Button - Always visible for sponsors */}
+                                            {isSponsor && (
+                                                <button
+                                                    className="generate-monitoring-plan-btn"
+                                                    onClick={(e) =>
+                                                        handleGenerateMonitoringPlan(
+                                                            study,
+                                                            e
+                                                        )
+                                                    }
+                                                >
+                                                    📋 Generate Monitoring Plan
+                                                </button>
+                                            )}
+
+                                            {/* Connect to Investigator Button or Query AI Agent Button */}
+                                            {study.hasPrincipalInvestigator() && (
+                                                <>
+                                                    {connectedStudies.has(
+                                                        study.id
+                                                    ) ? (
+                                                        <button
+                                                            className="query-agent-btn"
+                                                            onClick={(e) =>
+                                                                handleQueryAgent(
+                                                                    study,
+                                                                    e
+                                                                )
+                                                            }
+                                                        >
+                                                            🤖 Query AI Agent
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className="connect-investigator-btn"
+                                                            onClick={(e) =>
+                                                                handleConnectToInvestigator(
+                                                                    study,
+                                                                    e
+                                                                )
+                                                            }
+                                                        >
+                                                            🔌 Connect to
+                                                            Investigator
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
