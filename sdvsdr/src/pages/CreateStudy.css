@@ -854,6 +854,85 @@
   color: #a0a0a0;
 }
 
+/* Plan Confirmation Modal */
+.confirmation-modal {
+  max-width: 600px;
+  text-align: center;
+}
+
+.confirmation-content {
+  padding: 20px 0;
+}
+
+.success-icon {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.confirmation-content h3 {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.confirmation-content p {
+  color: #e0e0e0;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.monitoring-features {
+  display: grid;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.feature-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feature-text strong {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.feature-text span {
+  color: #a0a0a0;
+  font-size: 14px;
+}
+
 /* Form Actions */
 .form-actions {
   display: flex;

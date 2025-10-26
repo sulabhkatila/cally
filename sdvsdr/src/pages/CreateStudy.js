@@ -17,6 +17,7 @@ const CreateStudy = () => {
     const [isLoadingPlan, setIsLoadingPlan] = useState(false);
     const [planGenerated, setPlanGenerated] = useState(false);
     const [isEditingPlan, setIsEditingPlan] = useState(false);
+    const [showPlanConfirmation, setShowPlanConfirmation] = useState(false);
     const [monitoringPlanData, setMonitoringPlanData] = useState({
         executiveSummary: "",
         riskBasedMonitoring: "",
@@ -173,11 +174,14 @@ const CreateStudy = () => {
     const handleAttachPlanToStudy = () => {
         // Attach the monitoring plan to the study
         console.log("Attaching monitoring plan to study:", monitoringPlanData);
-        // Here you would typically save the plan to the study and start AI agents
-        alert(
-            "Monitoring plan attached to study! AI agents will now run the monitoring plan. Check logs for real-time updates."
-        );
+        // Show confirmation modal instead of alert
         setShowMonitoringPlan(false);
+        setShowPlanConfirmation(true);
+    };
+
+    const handleCompleteStudySetup = () => {
+        // Complete the initial study setup
+        setShowPlanConfirmation(false);
         navigate("/studies");
     };
 
@@ -1744,18 +1748,20 @@ const CreateStudy = () => {
                                 </>
                             ) : (
                                 <>
+                                    {planGenerated && (
+                                        <button
+                                            onClick={handleAttachPlanToStudy}
+                                            className="attach-plan-btn"
+                                            title="Attach the monitoring plan to the study and have AI agents run the monitoring plan. Logs can be viewed for real-time updates."
+                                        >
+                                            Attach Plan to Study
+                                        </button>
+                                    )}
                                     <button
                                         onClick={handleSkipMonitoringPlan}
                                         className="cancel-btn"
                                     >
-                                        Close
-                                    </button>
-                                    <button
-                                        onClick={handleAttachPlanToStudy}
-                                        className="attach-plan-btn"
-                                        title="Attach the monitoring plan to the study and have AI agents run the monitoring plan. Logs can be viewed for real-time updates."
-                                    >
-                                        Attach Plan to Study
+                                        Skip Plan
                                     </button>
                                     <button
                                         onClick={handleCloseMonitoringPlan}
@@ -1765,6 +1771,93 @@ const CreateStudy = () => {
                                     </button>
                                 </>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Plan Confirmation Modal */}
+            {showPlanConfirmation && (
+                <div className="modal-overlay">
+                    <div className="modal-content confirmation-modal">
+                        <div className="modal-header">
+                            <h2>Monitoring Plan Attached Successfully</h2>
+                        </div>
+                        <div className="modal-body">
+                            <div className="confirmation-content">
+                                <div className="success-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="64"
+                                        height="64"
+                                        fill="none"
+                                    >
+                                        <circle
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            fill="#28a745"
+                                        />
+                                        <path
+                                            d="M9 12l2 2 4-4"
+                                            stroke="white"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </div>
+                                <h3>AI Monitoring Agents Activated</h3>
+                                <p>
+                                    Your monitoring plan has been successfully
+                                    attached to the study. AI agents are now
+                                    running the comprehensive monitoring plan
+                                    and will continuously oversee data quality,
+                                    protocol compliance, and site performance.
+                                </p>
+                                <div className="monitoring-features">
+                                    <div className="feature-item">
+                                        <div className="feature-icon">🤖</div>
+                                        <div className="feature-text">
+                                            <strong>AI Agents Active</strong>
+                                            <span>
+                                                Automated monitoring and
+                                                analysis
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="feature-item">
+                                        <div className="feature-icon">📊</div>
+                                        <div className="feature-text">
+                                            <strong>Real-time Logs</strong>
+                                            <span>
+                                                View monitoring activities and
+                                                alerts
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="feature-item">
+                                        <div className="feature-icon">🔍</div>
+                                        <div className="feature-text">
+                                            <strong>
+                                                Continuous Oversight
+                                            </strong>
+                                            <span>
+                                                24/7 data quality and compliance
+                                                monitoring
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button
+                                onClick={handleCompleteStudySetup}
+                                className="submit-btn"
+                            >
+                                Complete Initial Study Setup
+                            </button>
                         </div>
                     </div>
                 </div>
