@@ -17,7 +17,7 @@ from typing import Dict, List
 
 from dotenv import load_dotenv
 from google import genai
-from uagents import Agent, Context, Protocol
+from uagents import Agent, Context, Protocol, Model
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
     ChatMessage,
@@ -51,6 +51,7 @@ agent = Agent(
     seed="TrialMonitor2024!",  # Unique seed phrase
     port=8004,
     mailbox=True,  # Required for Agentverse deployment
+    endpoint=["http://localhost:8004/submit"],  # REST endpoint configuration
 )
 
 # Initialize chat protocol
@@ -865,6 +866,187 @@ Do not include any other text in the return value."""
 
 
 # ============================================================================
+# REST ENDPOINT MODELS
+# ============================================================================
+
+
+class DataExtractionRequest(Model):
+    """Request model for data extraction endpoint"""
+
+    fileName: str
+    content: str
+    dataPoints: List[str] = []
+
+
+class DataExtractionResponse(Model):
+    """Response model for data extraction endpoint"""
+
+    success: bool
+    fileName: str
+    extractedDataPoints: List[str]
+    error: str = None
+
+
+class DataVerificationRequest(Model):
+    """Request model for data verification endpoint"""
+
+    crfData: str
+    esourceData: str
+    crfDataPoints: List[str]
+    esourceDataPoints: List[str]
+
+
+class DataVerificationResponse(Model):
+    """Response model for data verification endpoint"""
+
+    success: bool
+    verified: bool
+    verifiedDataPoints: List[str] = []
+    unverifiedDataPoints: List[str] = []
+    missingDataPoints: List[str] = []
+    discrepancyDataPoints: List[str] = []
+    additionalInformationNeeded: List[str] = []
+    error: str = None
+
+
+class HealthResponse(Model):
+    """Response model for health check endpoint"""
+
+    status: str
+    agent_address: str
+    capabilities: List[str]
+    timestamp: int
+
+
+# ============================================================================
+# REST ENDPOINT HANDLERS
+# ============================================================================
+
+
+@agent.on_rest_get("/health", HealthResponse)
+async def handle_health_check(ctx: Context) -> HealthResponse:
+    """Health check endpoint"""
+    return HealthResponse(
+        status="healthy",
+        agent_address=ctx.agent.address,
+        capabilities=[
+            "file_ranking",
+            "data_extraction",
+            "data_verification",
+            "data_quality_review",
+            "protocol_compliance_review",
+            "data_integrity_review",
+            "comprehensive_review_report",
+            "clinical_trial_analysis",
+            "monitoring_plan_generation",
+        ],
+        timestamp=int(datetime.now(timezone.utc).timestamp()),
+    )
+
+
+@agent.on_rest_post("/extract-data", DataExtractionRequest, DataExtractionResponse)
+async def handle_data_extraction_rest(
+    ctx: Context, req: DataExtractionRequest
+) -> DataExtractionResponse:
+    """REST endpoint for data extraction"""
+    try:
+        ctx.logger.info(f"📊 REST: Data extraction request for {req.fileName}")
+
+        # Use the existing data extraction handler
+        result = handle_data_point_extraction_request(req.content)
+
+        if result["success"]:
+            # Parse the extracted data points from the response
+            import json
+
+            try:
+                extracted_points = json.loads(result["data_points"])
+            except:
+                # If JSON parsing fails, extract from text
+                extracted_points = (
+                    result["data_points"].strip("[]").replace('"', "").split(",")
+                )
+                extracted_points = [
+                    point.strip() for point in extracted_points if point.strip()
+                ]
+
+            return DataExtractionResponse(
+                success=True,
+                fileName=req.fileName,
+                extractedDataPoints=extracted_points,
+            )
+        else:
+            return DataExtractionResponse(
+                success=False,
+                fileName=req.fileName,
+                extractedDataPoints=[],
+                error=result["error"],
+            )
+
+    except Exception as e:
+        ctx.logger.error(f"❌ REST: Error in data extraction: {e}")
+        return DataExtractionResponse(
+            success=False, fileName=req.fileName, extractedDataPoints=[], error=str(e)
+        )
+
+
+@agent.on_rest_post("/verify-data", DataVerificationRequest, DataVerificationResponse)
+async def handle_data_verification_rest(
+    ctx: Context, req: DataVerificationRequest
+) -> DataVerificationResponse:
+    """REST endpoint for data verification"""
+    try:
+        ctx.logger.info(f"✅ REST: Data verification request")
+
+        # Use the existing data verification handler
+        result = handle_data_verification_request(
+            req.crfData, req.esourceData, req.crfDataPoints
+        )
+
+        if result["success"]:
+            # Parse the verification results from the response
+            import json
+
+            try:
+                verification_data = json.loads(result["verification"])
+
+                return DataVerificationResponse(
+                    success=True,
+                    verified=verification_data.get("verified", False),
+                    verifiedDataPoints=verification_data.get(
+                        "verified_data_points", []
+                    ),
+                    unverifiedDataPoints=verification_data.get(
+                        "unverified_data_points", []
+                    ),
+                    missingDataPoints=verification_data.get("missing_data_points", []),
+                    discrepancyDataPoints=verification_data.get(
+                        "discrepancy_data_points", []
+                    ),
+                    additionalInformationNeeded=verification_data.get(
+                        "additional_information_needed", []
+                    ),
+                )
+            except Exception as parse_error:
+                ctx.logger.error(
+                    f"❌ REST: Error parsing verification response: {parse_error}"
+                )
+                return DataVerificationResponse(
+                    success=False,
+                    verified=False,
+                    error=f"Error parsing verification response: {parse_error}",
+                )
+        else:
+            return DataVerificationResponse(
+                success=False, verified=False, error=result["error"]
+            )
+
+    except Exception as e:
+        ctx.logger.error(f"❌ REST: Error in data verification: {e}")
+        return DataVerificationResponse(success=False, verified=False, error=str(e))
+
+
+# ============================================================================
 # REQUEST DETECTION AND PARSING
 # ============================================================================
 
@@ -1490,6 +1672,12 @@ if __name__ == "__main__":
     print(
         "   • Monitoring Plan Generation: Generate comprehensive monitoring plans including remote SDV plans"
     )
+
+    print("\n🌐 REST Endpoints:")
+    print("   • GET  /health - Health check and agent status")
+    print("   • POST /extract-data - Extract data points from file content")
+    print("   • POST /verify-data - Verify CRF data against eSource data")
+    print(f"   • Base URL: http://localhost:8004")
 
     print("\n💡 Usage Examples:")
     print("   1. File Ranking Request:")
