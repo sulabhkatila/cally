@@ -472,6 +472,73 @@ def get_database_stats():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/files/crf", methods=["GET"])
+def get_crf_files():
+    """Get list of CRF files from mocks/crf directory."""
+    try:
+        # Path to the CRF files directory
+        crf_dir = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "sdvsdr", "mocks", "crf"
+        )
+
+        if not os.path.exists(crf_dir):
+            return jsonify({"error": "CRF directory not found"}), 404
+
+        files = []
+        for filename in os.listdir(crf_dir):
+            if filename.endswith((".docx", ".pdf")):
+                file_path = os.path.join(crf_dir, filename)
+                file_stat = os.stat(file_path)
+
+                # Determine file type and description based on filename
+                file_type = "Unknown"
+                description = "Clinical trial data file"
+
+                if "adverseeffect" in filename.lower():
+                    file_type = "Adverse Effect"
+                    description = "Adverse event reporting form"
+                elif "demographics" in filename.lower():
+                    file_type = "Demographics"
+                    description = "Patient demographic information"
+                elif "diseaseactivity" in filename.lower():
+                    file_type = "Disease Activity"
+                    description = "Disease activity assessment scores"
+                elif "medicalhistory" in filename.lower():
+                    file_type = "Medical History"
+                    description = "Patient medical history and comorbidities"
+                elif "medications" in filename.lower():
+                    file_type = "Medications"
+                    description = "Current and prior medications"
+                elif "week0-10" in filename.lower():
+                    file_type = "Visit Data (Week 0-10)"
+                    description = "Longitudinal visit data across weeks 0-10"
+                elif "week0" in filename.lower() and "week0-10" not in filename.lower():
+                    file_type = "Baseline Visit"
+                    description = "Baseline visit assessments and measurements"
+
+                files.append(
+                    {
+                        "id": f"FILE-{len(files) + 1:03d}",
+                        "name": filename,
+                        "type": file_type,
+                        "status": "completed",
+                        "uploadedBy": "Dr. Sarah Johnson",
+                        "uploadedAt": "2024-01-15",
+                        "description": description,
+                        "size": file_stat.st_size,
+                        "modified": file_stat.st_mtime,
+                    }
+                )
+
+        # Sort files by name
+        files.sort(key=lambda x: x["name"])
+
+        return jsonify({"files": files})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/health", methods=["GET"])
 def health_check():
     """Health check endpoint."""

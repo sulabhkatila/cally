@@ -213,6 +213,17 @@ class DataService {
             throw error;
         }
     }
+
+    // CRF Files API methods
+    async getCRFFiles() {
+        try {
+            const response = await apiService.getCRFFiles();
+            return response.files;
+        } catch (error) {
+            console.error("Error fetching CRF files:", error);
+            throw error;
+        }
+    }
 }
 
 // Create and export a singleton instance

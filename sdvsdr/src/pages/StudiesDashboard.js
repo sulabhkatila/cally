@@ -46,6 +46,7 @@ const StudiesDashboard = () => {
     const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
     const [showFileViewerModal, setShowFileViewerModal] = useState(false);
     const [selectedStudyForFiles, setSelectedStudyForFiles] = useState(null);
+    const [availableFiles, setAvailableFiles] = useState([]);
 
     const isSponsor = user?.role === "Sponsor";
     const isInvestigator = user?.role === "Investigator";
@@ -336,78 +337,19 @@ The agent can help with:
     };
 
     // Handle opening file viewer modal
-    const handleViewData = (study) => {
-        setSelectedStudyForFiles(study);
-        setShowFileViewerModal(true);
-    };
+    const handleViewData = async (study) => {
+        try {
+            setSelectedStudyForFiles(study);
+            setShowFileViewerModal(true);
 
-    // CRF files data from mocks/crf directory
-    const getCRFFiles = () => {
-        return [
-            {
-                id: "CRF-001",
-                name: "crf_sub_1_adverseeffect.docx",
-                type: "Adverse Effect",
-                status: "completed",
-                uploadedBy: "Dr. Sarah Johnson",
-                uploadedAt: "2024-01-15",
-                description: "Adverse event reporting form",
-            },
-            {
-                id: "CRF-002",
-                name: "crf_sub_1_Demographics.docx",
-                type: "Demographics",
-                status: "completed",
-                uploadedBy: "Dr. Sarah Johnson",
-                uploadedAt: "2024-01-16",
-                description: "Patient demographic information",
-            },
-            {
-                id: "CRF-003",
-                name: "crf_sub_1_diseaseActivityAssessment.docx",
-                type: "Disease Activity",
-                status: "completed",
-                uploadedBy: "Dr. Sarah Johnson",
-                uploadedAt: "2024-01-17",
-                description: "Disease activity assessment scores",
-            },
-            {
-                id: "CRF-004",
-                name: "crf_sub_1_medicalhistory.docx",
-                type: "Medical History",
-                status: "completed",
-                uploadedBy: "Dr. Sarah Johnson",
-                uploadedAt: "2024-01-18",
-                description: "Patient medical history and comorbidities",
-            },
-            {
-                id: "CRF-005",
-                name: "crf_sub_1_medications.docx",
-                type: "Medications",
-                status: "completed",
-                uploadedBy: "Dr. Sarah Johnson",
-                uploadedAt: "2024-01-19",
-                description: "Current and prior medications",
-            },
-            {
-                id: "CRF-006",
-                name: "CRF_sub_1_week0-10.docx",
-                type: "Visit Data (Week 0-10)",
-                status: "completed",
-                uploadedBy: "Dr. Sarah Johnson",
-                uploadedAt: "2024-01-20",
-                description: "Longitudinal visit data across weeks 0-10",
-            },
-            {
-                id: "CRF-007",
-                name: "crf_sub_1_week0.docx",
-                type: "Baseline Visit",
-                status: "completed",
-                uploadedBy: "Dr. Sarah Johnson",
-                uploadedAt: "2024-01-21",
-                description: "Baseline visit assessments and measurements",
-            },
-        ];
+            // Fetch actual files from the backend
+            const files = await dataService.getCRFFiles();
+            setAvailableFiles(files);
+        } catch (error) {
+            console.error("Error fetching CRF files:", error);
+            // Fallback to empty array if API fails
+            setAvailableFiles([]);
+        }
     };
 
     return (
@@ -1323,7 +1265,7 @@ The agent can help with:
                                             fontWeight: "500",
                                         }}
                                     >
-                                        {getCRFFiles().length} files
+                                        {availableFiles.length} files
                                     </div>
                                 </div>
 
@@ -1336,7 +1278,7 @@ The agent can help with:
                                         gap: "16px",
                                     }}
                                 >
-                                    {getCRFFiles().map((file) => (
+                                    {availableFiles.map((file) => (
                                         <div
                                             key={file.id}
                                             className="file-item"

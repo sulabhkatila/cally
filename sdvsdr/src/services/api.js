@@ -107,6 +107,11 @@ class ApiService {
     async getDocuments() {
         return this.request("/documents");
     }
+
+    // CRF Files endpoint
+    async getCRFFiles() {
+        return this.request("/api/files/crf");
+    }
 }
 
 // Create and export a singleton instance
