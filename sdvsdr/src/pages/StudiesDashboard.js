@@ -25,6 +25,10 @@ const StudiesDashboard = () => {
     const [agentResponse, setAgentResponse] = useState("");
     const [isQueryingAgent, setIsQueryingAgent] = useState(false);
     const [connectedStudies, setConnectedStudies] = useState(new Set());
+    const [showAccessModal, setShowAccessModal] = useState(false);
+    const [accessModalMessage, setAccessModalMessage] = useState("");
+    const [accessModalTitle, setAccessModalTitle] = useState("");
+    const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
 
     const isSponsor = user?.role === "Sponsor";
     const isInvestigator = user?.role === "Investigator";
@@ -160,11 +164,17 @@ const StudiesDashboard = () => {
                 // Start polling for response
                 pollForAccessResponse(study);
             } else {
-                alert("Failed to send access request");
+                setAccessModalTitle("❌ Error");
+                setAccessModalMessage("Failed to send access request. Please try again.");
+                setShowAccessModal(true);
+                setIsWaitingForResponse(false);
             }
         } catch (error) {
             console.error("Error connecting to investigator:", error);
-            alert("Failed to connect to investigator site");
+            setAccessModalTitle("❌ Connection Error");
+            setAccessModalMessage("Failed to connect to investigator site. Please try again.");
+            setShowAccessModal(true);
+            setIsWaitingForResponse(false);
         }
     };
 
@@ -192,15 +202,17 @@ const StudiesDashboard = () => {
                             setConnectedStudies(
                                 (prev) => new Set([...prev, study.id])
                             );
-                            alert(
-                                `✅ Access GRANTED by ${study.principalInvestigator.name}\n\nYou can now access their trial site data.`
+                            setAccessModalTitle("✅ Access Granted");
+                            setAccessModalMessage(
+                                `Access GRANTED by ${study.principalInvestigator.name}\n\nYou can now access their trial site data.`
                             );
+                            setIsWaitingForResponse(false);
                         } else if (data.status === "denied") {
-                            alert(
-                                `❌ Access DENIED by ${study.principalInvestigator.name}\n\nThey have declined your access request.`
+                            setAccessModalTitle("❌ Access Denied");
+                            setAccessModalMessage(
+                                `Access DENIED by ${study.principalInvestigator.name}\n\nThey have declined your access request.`
                             );
-                        } else {
-                            alert(`Access response received: ${data.status}`);
+                            setIsWaitingForResponse(false);
                         }
                     }
                 }
@@ -211,16 +223,21 @@ const StudiesDashboard = () => {
             // Stop polling after max attempts
             if (attempts >= maxAttempts) {
                 clearInterval(pollInterval);
-                alert(
-                    "⏱️ No response received from investigator. The request may have timed out."
+                setAccessModalTitle("⏱️ Request Timeout");
+                setAccessModalMessage(
+                    "No response received from investigator. The request may have timed out."
                 );
+                setIsWaitingForResponse(false);
             }
         }, 1000); // Poll every 1 second
 
-        // Show initial alert
-        alert(
-            `⏳ Access request sent to ${study.principalInvestigator.name}\n\nWaiting for their response...`
+        // Show modal with initial message
+        setAccessModalTitle("⏳ Access Request Sent");
+        setAccessModalMessage(
+            `Access request sent to ${study.principalInvestigator.name}\n\nWaiting for their response...`
         );
+        setShowAccessModal(true);
+        setIsWaitingForResponse(true);
     };
 
     const getStatusColor = (status) => {
@@ -680,6 +697,59 @@ The agent can help with:
 
             {/* Backend Test Component (Development Only) */}
             {process.env.NODE_ENV === "development" && <BackendTest />}
+
+            {/* Access Request Modal */}
+            {showAccessModal && (
+                <div
+                    className="access-modal-overlay"
+                    onClick={() => {
+                        if (!isWaitingForResponse) {
+                            setShowAccessModal(false);
+                        }
+                    }}
+                >
+                    <div
+                        className="access-modal-content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="access-modal-header">
+                            <h2>{accessModalTitle}</h2>
+                            {!isWaitingForResponse && (
+                                <button
+                                    className="access-modal-close"
+                                    onClick={() => setShowAccessModal(false)}
+                                >
+                                    ×
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="access-modal-body">
+                            {isWaitingForResponse ? (
+                                <div className="waiting-indicator">
+                                    <div className="pulse-animation"></div>
+                                    <p style={{ whiteSpace: 'pre-wrap' }}>{accessModalMessage}</p>
+                                </div>
+                            ) : (
+                                <div className="access-modal-message">
+                                    <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0 }}>
+                                        {accessModalMessage}
+                                    </pre>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="access-modal-actions">
+                            <button
+                                className="access-modal-ok-btn"
+                                onClick={() => setShowAccessModal(false)}
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Agent Response Modal */}
             {showAgentModal && (

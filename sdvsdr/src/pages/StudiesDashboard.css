@@ -399,6 +399,214 @@
   }
 }
 
+/* Access Request Modal */
+.access-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.access-modal-content {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.access-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 30px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.access-modal-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.access-modal-close {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  color: #666;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.access-modal-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #000;
+  transform: rotate(90deg);
+}
+
+.access-modal-body {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.access-modal-message {
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.access-modal-message pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.waiting-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.waiting-indicator p {
+  color: #555;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+}
+
+.pulse-animation {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #e8e8e8;
+  border-top-color: #7C3AED;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: relative;
+}
+
+.pulse-animation::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 4px solid #e8e8e8;
+  border-top-color: #7C3AED;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+.access-modal-actions {
+  display: flex;
+  justify-content: center;
+  padding: 20px 30px 30px 30px;
+  gap: 12px;
+}
+
+.access-modal-ok-btn {
+  background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.access-modal-ok-btn:hover {
+  background: linear-gradient(135deg, #6D28D9 0%, #5B21B6 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+.access-modal-ok-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .access-modal-content {
+    margin: 20px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .access-modal-header {
+    padding: 20px 24px;
+  }
+  
+  .access-modal-header h2 {
+    font-size: 20px;
+  }
+  
+  .access-modal-body {
+    padding: 24px;
+    min-height: 120px;
+  }
+  
+  .access-modal-actions {
+    padding: 16px 24px 24px 24px;
+  }
+  
+  .access-modal-ok-btn {
+    width: 100%;
+  }
+}
+
 /* Study Files */
 .study-files {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
