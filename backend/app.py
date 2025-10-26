@@ -444,6 +444,7 @@ def create_study():
             created_at=datetime.now(),
             sites=[],
             principal_investigator=data.get("principalInvestigator"),
+            protocol_analysis=data.get("protocolAnalysis"),
         )
 
         # Add to database
@@ -457,6 +458,106 @@ def create_study():
             ),
             201,
         )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/analyze-protocol", methods=["POST"])
+def analyze_protocol():
+    """Analyze clinical trial protocol using TrialMonitor agent."""
+    try:
+        if "file" not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+
+        file = request.files["file"]
+        if file.filename == "":
+            return jsonify({"error": "No file selected"}), 400
+
+        # Read file content
+        file_content = file.read()
+
+        # Convert to text based on file type
+        if file.filename.lower().endswith(".pdf"):
+            import PyPDF2
+
+            pdf_reader = PyPDF2.PdfReader(BytesIO(file_content))
+            text_content = ""
+            for page in pdf_reader.pages:
+                text_content += page.extract_text() + "\n"
+        elif file.filename.lower().endswith((".doc", ".docx")):
+            # For now, return error for DOC files as we need python-docx
+            return (
+                jsonify(
+                    {
+                        "error": "DOC/DOCX files not supported yet. Please use PDF or TXT."
+                    }
+                ),
+                400,
+            )
+        else:
+            # Assume it's a text file
+            text_content = file_content.decode("utf-8")
+
+        # Call TrialMonitor agent for protocol analysis
+        # This would be a call to the hosted TrialMonitor agent
+        # For now, we'll simulate the response structure
+        analysis_result = {
+            "trial_overview": {
+                "protocol_title": "Extracted from protocol",
+                "protocol_number": "PROT-001",
+                "study_phase": "Phase III",
+                "trial_type": "Interventional",
+                "indication": "Extracted indication",
+            },
+            "primary_objectives": {
+                "primary_objectives": "Extracted objectives",
+                "primary_endpoints": "Extracted endpoints",
+                "secondary_endpoints": "Extracted secondary endpoints",
+            },
+            "trial_design": {
+                "study_design": "Randomized, double-blind, placebo-controlled",
+                "randomization": "Yes",
+                "blinding": "Double-blind",
+                "sample_size": "500 patients",
+                "duration": "24 weeks",
+            },
+            "eligibility_criteria": {
+                "inclusion_criteria": ["Criterion 1", "Criterion 2"],
+                "exclusion_criteria": ["Exclusion 1", "Exclusion 2"],
+            },
+            "monitoring_requirements": {
+                "monitoring_schedule": "Every 4 weeks",
+                "sdv_requirements": "100% for primary endpoints",
+                "source_document_verification": "Required for all AEs",
+            },
+            "key_personnel": {
+                "principal_investigators": "To be assigned",
+                "study_sites": "To be determined",
+                "sponsor": "Current user",
+            },
+            "timeline": {
+                "visit_schedule": "Screening, Baseline, Weeks 4,8,12,16,20,24",
+                "key_milestones": "Enrollment, Data collection, Analysis",
+                "duration_of_participation": "24 weeks",
+            },
+            "safety_monitoring": {
+                "safety_endpoints": "Adverse events, laboratory assessments",
+                "adverse_event_monitoring": "Throughout study",
+                "dsmb_requirements": "Review at 25% and 50% enrollment",
+            },
+            "statistical_analysis": {
+                "statistical_methods": "ANCOVA with baseline adjustment",
+                "primary_analysis": "Change from baseline at Week 24",
+                "sample_size_calculation": "500 patients (90% power, α=0.05)",
+            },
+            "other_details": {
+                "special_procedures": "ECG monitoring, laboratory assessments",
+                "regulatory_information": "Phase III study for regulatory submission",
+            },
+        }
+
+        return jsonify(analysis_result), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

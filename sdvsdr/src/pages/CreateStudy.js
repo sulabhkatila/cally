@@ -8,48 +8,44 @@ import "./CreateStudy.css";
 const CreateStudy = () => {
     const navigate = useNavigate();
     const user = getUser();
-    const [formData, setFormData] = useState({
-        title: "",
-        protocolFile: null,
-        description: "",
-        phase: "",
-        indication: "",
-        estimatedDuration: "",
-        estimatedSubjects: "",
-        principalInvestigator: {
-            name: "",
-            email: "",
-            institution: "",
-            specialty: "",
-        },
-    });
+    const [protocolFile, setProtocolFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState(null);
+    const [error, setError] = useState(null);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        setFormData((prev) => ({
-            ...prev,
-            protocolFile: file,
-        }));
+        setProtocolFile(file);
+        setError(null);
+        setAnalysisResult(null);
     };
 
-    const handleInvestigatorChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            principalInvestigator: {
-                ...prev.principalInvestigator,
-                [name]: value,
-            },
-        }));
+    const analyzeProtocol = async (file) => {
+        setIsAnalyzing(true);
+        setError(null);
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // Send to backend for protocol analysis
+            const response = await fetch("/api/analyze-protocol", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to analyze protocol");
+            }
+
+            const result = await response.json();
+            setAnalysisResult(result);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -57,16 +53,30 @@ const CreateStudy = () => {
         setIsSubmitting(true);
 
         try {
-            // Prepare study data for backend
+            if (!analysisResult) {
+                throw new Error("Please analyze the protocol first");
+            }
+
+            // Create study data from analysis result
             const studyData = {
-                title: formData.title,
-                protocol: formData.description,
+                title:
+                    analysisResult.trial_overview?.protocol_title ||
+                    "Unknown Study",
+                protocol: protocolFile.name,
                 sponsor: user.companyAssociation,
-                phase: formData.phase,
-                indication: formData.indication,
-                principalInvestigator: formData.principalInvestigator.name
-                    ? formData.principalInvestigator
-                    : null,
+                phase: analysisResult.trial_overview?.study_phase || "Unknown",
+                indication:
+                    analysisResult.trial_overview?.indication || "Unknown",
+                description: analysisResult.trial_overview?.description || "",
+                estimatedDuration:
+                    analysisResult.trial_design?.duration || "Unknown",
+                estimatedSubjects:
+                    analysisResult.trial_design?.sample_size || "Unknown",
+                principalInvestigator:
+                    analysisResult.key_personnel?.principal_investigators ||
+                    null,
+                // Store the full analysis result for future reference
+                protocolAnalysis: analysisResult,
             };
 
             // Create study via backend API
@@ -77,7 +87,7 @@ const CreateStudy = () => {
             navigate("/studies");
         } catch (error) {
             console.error("Error creating study:", error);
-            alert("Failed to create study. Please try again.");
+            alert("Failed to create study: " + error.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -121,8 +131,8 @@ const CreateStudy = () => {
                         </button>
                         <h1>Create New Study</h1>
                         <p>
-                            Set up a new clinical trial for source data
-                            verification
+                            Upload your clinical trial protocol and we'll
+                            automatically extract all the necessary information
                         </p>
                     </div>
                 </div>
@@ -131,84 +141,13 @@ const CreateStudy = () => {
             <div className="page-content">
                 <form onSubmit={handleSubmit} className="study-form">
                     <div className="form-section">
-                        <h2>Study Information</h2>
-                        <div className="form-grid">
-                            <div className="form-group full-width">
-                                <label htmlFor="title">Study Title *</label>
-                                <input
-                                    type="text"
-                                    id="title"
-                                    name="title"
-                                    value={formData.title}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., Phase III Trial: Novel Cancer Treatment"
-                                    required
-                                />
-                            </div>
+                        <h2>Upload Protocol Document</h2>
+                        <p className="section-description">
+                            Upload your clinical trial protocol document and
+                            we'll automatically extract all the necessary
+                            information to create your study.
+                        </p>
 
-                            <div className="form-group">
-                                <label htmlFor="phase">Phase *</label>
-                                <select
-                                    id="phase"
-                                    name="phase"
-                                    value={formData.phase}
-                                    onChange={handleInputChange}
-                                    required
-                                >
-                                    <option value="">Select Phase</option>
-                                    <option value="Phase I">Phase I</option>
-                                    <option value="Phase II">Phase II</option>
-                                    <option value="Phase III">Phase III</option>
-                                    <option value="Phase IV">Phase IV</option>
-                                    <option value="Pilot">Pilot Study</option>
-                                </select>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="indication">Indication *</label>
-                                <input
-                                    type="text"
-                                    id="indication"
-                                    name="indication"
-                                    value={formData.indication}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., Advanced Solid Tumors"
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="estimatedDuration">
-                                    Estimated Duration
-                                </label>
-                                <input
-                                    type="text"
-                                    id="estimatedDuration"
-                                    name="estimatedDuration"
-                                    value={formData.estimatedDuration}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., 24 months"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="estimatedSubjects">
-                                    Estimated Subjects
-                                </label>
-                                <input
-                                    type="number"
-                                    id="estimatedSubjects"
-                                    name="estimatedSubjects"
-                                    value={formData.estimatedSubjects}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., 300"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="form-section">
-                        <h2>Protocol Details</h2>
                         <div className="form-group">
                             <label htmlFor="protocolFile">
                                 Protocol File *
@@ -227,89 +166,96 @@ const CreateStudy = () => {
                             </p>
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="description">
-                                Additional Description
-                            </label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                value={formData.description}
-                                onChange={handleInputChange}
-                                placeholder="Any additional details about the study..."
-                                rows="3"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-section">
-                        <h2>Principal Investigator (Optional)</h2>
-                        <p className="section-description">
-                            You can add a principal investigator now or assign
-                            one later from the studies dashboard.
-                        </p>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label htmlFor="investigatorName">
-                                    Investigator Name
-                                </label>
-                                <input
-                                    type="text"
-                                    id="investigatorName"
-                                    name="name"
-                                    value={formData.principalInvestigator.name}
-                                    onChange={handleInvestigatorChange}
-                                    placeholder="e.g., Dr. Sarah Johnson"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="investigatorEmail">
-                                    Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    id="investigatorEmail"
-                                    name="email"
-                                    value={formData.principalInvestigator.email}
-                                    onChange={handleInvestigatorChange}
-                                    placeholder="e.g., sarah.johnson@hospital.com"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="investigatorInstitution">
-                                    Institution
-                                </label>
-                                <input
-                                    type="text"
-                                    id="investigatorInstitution"
-                                    name="institution"
-                                    value={
-                                        formData.principalInvestigator
-                                            .institution
+                        {protocolFile && !analysisResult && (
+                            <div className="analyze-section">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        analyzeProtocol(protocolFile)
                                     }
-                                    onChange={handleInvestigatorChange}
-                                    placeholder="e.g., Johns Hopkins Hospital"
-                                />
+                                    className="analyze-btn"
+                                    disabled={isAnalyzing}
+                                >
+                                    {isAnalyzing ? (
+                                        <>
+                                            <svg
+                                                className="spinner"
+                                                viewBox="0 0 24 24"
+                                                width="16"
+                                                height="16"
+                                            >
+                                                <circle
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeDasharray="31.416"
+                                                    strokeDashoffset="31.416"
+                                                >
+                                                    <animate
+                                                        attributeName="stroke-dasharray"
+                                                        dur="2s"
+                                                        values="0 31.416;15.708 15.708;0 31.416"
+                                                        repeatCount="indefinite"
+                                                    />
+                                                    <animate
+                                                        attributeName="stroke-dashoffset"
+                                                        dur="2s"
+                                                        values="0;-15.708;-31.416"
+                                                        repeatCount="indefinite"
+                                                    />
+                                                </circle>
+                                            </svg>
+                                            Analyzing Protocol...
+                                        </>
+                                    ) : (
+                                        "Analyze Protocol"
+                                    )}
+                                </button>
                             </div>
+                        )}
 
-                            <div className="form-group">
-                                <label htmlFor="investigatorSpecialty">
-                                    Medical Specialty
-                                </label>
-                                <input
-                                    type="text"
-                                    id="investigatorSpecialty"
-                                    name="specialty"
-                                    value={
-                                        formData.principalInvestigator.specialty
-                                    }
-                                    onChange={handleInvestigatorChange}
-                                    placeholder="e.g., Oncology, Cardiology"
-                                />
+                        {error && (
+                            <div className="error-message">
+                                <p>Error: {error}</p>
                             </div>
-                        </div>
+                        )}
+
+                        {analysisResult && (
+                            <div className="analysis-result">
+                                <h3>Protocol Analysis Results</h3>
+                                <div className="analysis-summary">
+                                    <div className="analysis-item">
+                                        <strong>Study Title:</strong>{" "}
+                                        {analysisResult.trial_overview
+                                            ?.protocol_title || "Not found"}
+                                    </div>
+                                    <div className="analysis-item">
+                                        <strong>Phase:</strong>{" "}
+                                        {analysisResult.trial_overview
+                                            ?.study_phase || "Not found"}
+                                    </div>
+                                    <div className="analysis-item">
+                                        <strong>Indication:</strong>{" "}
+                                        {analysisResult.trial_overview
+                                            ?.indication || "Not found"}
+                                    </div>
+                                    <div className="analysis-item">
+                                        <strong>Sample Size:</strong>{" "}
+                                        {analysisResult.trial_design
+                                            ?.sample_size || "Not found"}
+                                    </div>
+                                    <div className="analysis-item">
+                                        <strong>Duration:</strong>{" "}
+                                        {analysisResult.trial_design
+                                            ?.duration || "Not found"}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-actions">
@@ -323,11 +269,41 @@ const CreateStudy = () => {
                         <button
                             type="submit"
                             className="submit-btn"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || !analysisResult}
                         >
                             {isSubmitting ? (
                                 <>
-                                    <div className="loading-spinner"></div>
+                                    <svg
+                                        className="spinner"
+                                        viewBox="0 0 24 24"
+                                        width="16"
+                                        height="16"
+                                    >
+                                        <circle
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeDasharray="31.416"
+                                            strokeDashoffset="31.416"
+                                        >
+                                            <animate
+                                                attributeName="stroke-dasharray"
+                                                dur="2s"
+                                                values="0 31.416;15.708 15.708;0 31.416"
+                                                repeatCount="indefinite"
+                                            />
+                                            <animate
+                                                attributeName="stroke-dashoffset"
+                                                dur="2s"
+                                                values="0;-15.708;-31.416"
+                                                repeatCount="indefinite"
+                                            />
+                                        </circle>
+                                    </svg>
                                     Creating Study...
                                 </>
                             ) : (

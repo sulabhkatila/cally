@@ -133,6 +133,7 @@ class Study:
         created_at: datetime,
         sites: List[Site] = None,
         principal_investigator: Optional[Dict[str, str]] = None,
+        protocol_analysis: Optional[Dict] = None,
     ):
         self.id = study_id
         self.title = title
@@ -142,6 +143,7 @@ class Study:
         self.created_at = created_at
         self.sites = sites or []
         self.principal_investigator = principal_investigator
+        self.protocol_analysis = protocol_analysis
         self.e_source_files = []
         self.crf_files = []
 
@@ -184,6 +186,7 @@ class Study:
             "createdAt": self.created_at.isoformat(),
             "sites": [site.to_dict() for site in self.sites],
             "principalInvestigator": self.principal_investigator,
+            "protocolAnalysis": self.protocol_analysis,
             "eSourceFiles": [f.to_dict() for f in self.e_source_files],
             "crfFiles": [f.to_dict() for f in self.crf_files],
             "totalSites": self.get_total_sites(),
