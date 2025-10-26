@@ -50,6 +50,9 @@ const StudiesDashboard = () => {
     const [availableFiles, setAvailableFiles] = useState([]);
     const [showFilePreviewModal, setShowFilePreviewModal] = useState(false);
     const [selectedFileForPreview, setSelectedFileForPreview] = useState(null);
+    const [showSDVModal, setShowSDVModal] = useState(false);
+    const [isSDVMinimized, setIsSDVMinimized] = useState(false);
+    const [currentSDVStudy, setCurrentSDVStudy] = useState(null);
 
     const isSponsor = user?.role === "Sponsor";
     const isInvestigator = user?.role === "Investigator";
@@ -308,46 +311,23 @@ const StudiesDashboard = () => {
 
     const handleQueryAgent = async (study, e) => {
         e.stopPropagation();
+        setCurrentSDVStudy(study);
+        setShowSDVModal(true);
+        setIsSDVMinimized(false);
+    };
 
-        try {
-            setIsQueryingAgent(true);
-            setShowAgentModal(true);
-            setAgentResponse("Querying ClinicalTriailAnalyzer agent...");
+    const handleMinimizeSDV = () => {
+        setIsSDVMinimized(true);
+    };
 
-            // Query the Fetch.ai agent
-            // TODO: Replace with actual Fetch.ai agent integration
-            // For now, we'll simulate the response
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+    const handleMaximizeSDV = () => {
+        setIsSDVMinimized(false);
+    };
 
-            const agentMessage = `The Clinical Trial Analyzer agent is a specialized AI agent for clinical trial protocol analysis.
-
-**Key Capabilities:**
-• Analyzes clinical trial protocol text content
-• Extracts key trial information (objectives, endpoints, eligibility criteria)
-• Understands monitoring schedules and SDV requirements
-• Provides expert knowledge about clinical trial methodology
-• Answers questions about clinical trials and protocols
-
-**Agent Details:**
-• Powered by Google Gemini AI
-• Runs on Fetch.ai's decentralized agent network
-• Specialized in clinical trial protocol analysis
-
-**Integration:**
-The agent can help with:
-- Protocol text analysis and interpretation
-- Monitoring schedule extraction
-- Eligibility criteria analysis
-- SDV requirements identification
-- Regulatory compliance guidance`;
-
-            setAgentResponse(agentMessage);
-        } catch (error) {
-            console.error("Error querying agent:", error);
-            setAgentResponse("Error querying agent. Please try again later.");
-        } finally {
-            setIsQueryingAgent(false);
-        }
+    const handleCloseSDV = () => {
+        setShowSDVModal(false);
+        setCurrentSDVStudy(null);
+        setIsSDVMinimized(false);
     };
 
     // Handle opening file viewer modal
@@ -662,7 +642,7 @@ The agent can help with:
                                                 </button>
                                             )}
 
-                                            {/* Connect to Investigator Button or Query AI Agent Button */}
+                                            {/* Connect to Investigator Button or Start SDV Button */}
                                             {study.hasPrincipalInvestigator() && (
                                                 <>
                                                     {connectedStudies.has(
@@ -677,7 +657,7 @@ The agent can help with:
                                                                 )
                                                             }
                                                         >
-                                                            🤖 Query AI Agent
+                                                            🔍 Start SDV
                                                         </button>
                                                     ) : (
                                                         <button
@@ -1674,6 +1654,136 @@ The agent can help with:
                                 title={`Preview of ${selectedFileForPreview.name}`}
                             />
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* SDV Process Modal */}
+            {showSDVModal && (
+                <div
+                    className={`sdv-modal-overlay ${
+                        isSDVMinimized ? "minimized" : ""
+                    }`}
+                >
+                    <div
+                        className={`sdv-modal ${
+                            isSDVMinimized ? "minimized" : ""
+                        }`}
+                    >
+                        <div className="sdv-modal-header">
+                            <div className="sdv-modal-title">
+                                <span className="sdv-icon">🔍</span>
+                                <h3>Source Data Verification (SDV)</h3>
+                                {currentSDVStudy && (
+                                    <span className="study-name">
+                                        {currentSDVStudy.title}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="sdv-modal-controls">
+                                <button
+                                    className="minimize-btn"
+                                    onClick={
+                                        isSDVMinimized
+                                            ? handleMaximizeSDV
+                                            : handleMinimizeSDV
+                                    }
+                                    title={
+                                        isSDVMinimized ? "Maximize" : "Minimize"
+                                    }
+                                >
+                                    {isSDVMinimized ? "⬆️" : "⬇️"}
+                                </button>
+                                <button
+                                    className="close-btn"
+                                    onClick={handleCloseSDV}
+                                    title="Close"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+
+                        {!isSDVMinimized && (
+                            <div className="sdv-modal-content">
+                                <div className="sdv-status">
+                                    <div className="status-indicator">
+                                        <div className="pulse-dot"></div>
+                                        <span>SDV Process Active</span>
+                                    </div>
+                                </div>
+
+                                <div className="sdv-sections">
+                                    <div className="sdv-section">
+                                        <h4>📊 Data Quality Monitoring</h4>
+                                        <div className="progress-bar">
+                                            <div
+                                                className="progress-fill"
+                                                style={{ width: "75%" }}
+                                            ></div>
+                                        </div>
+                                        <p>
+                                            Analyzing data completeness and
+                                            accuracy
+                                        </p>
+                                    </div>
+
+                                    <div className="sdv-section">
+                                        <h4>🔍 Protocol Compliance</h4>
+                                        <div className="progress-bar">
+                                            <div
+                                                className="progress-fill"
+                                                style={{ width: "60%" }}
+                                            ></div>
+                                        </div>
+                                        <p>
+                                            Verifying adherence to study
+                                            protocol
+                                        </p>
+                                    </div>
+
+                                    <div className="sdv-section">
+                                        <h4>📋 Source Document Verification</h4>
+                                        <div className="progress-bar">
+                                            <div
+                                                className="progress-fill"
+                                                style={{ width: "45%" }}
+                                            ></div>
+                                        </div>
+                                        <p>
+                                            Cross-referencing CRF data with
+                                            source documents
+                                        </p>
+                                    </div>
+
+                                    <div className="sdv-section">
+                                        <h4>⚠️ Query Management</h4>
+                                        <div className="progress-bar">
+                                            <div
+                                                className="progress-fill"
+                                                style={{ width: "30%" }}
+                                            ></div>
+                                        </div>
+                                        <p>
+                                            Identifying and resolving data
+                                            discrepancies
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="sdv-actions">
+                                    <button className="pause-btn">
+                                        ⏸️ Pause SDV
+                                    </button>
+                                    <button className="view-logs-btn">
+                                        📋 View Logs
+                                    </button>
+                                    <button className="export-report-btn">
+                                        📄 Export Report
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
