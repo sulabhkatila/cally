@@ -186,7 +186,54 @@ def create_mock_studies():
         )
     )
 
-    return [study1, study2, study3]
+    # Study 4: Phase II Study: ARX-95 efficacy (draft)
+    study4_sites = [
+        Site(
+            "SITE-007",
+            "Stanford Medical Center",
+            "Dr. Michael Chen",
+            "Stanford, CA",
+            "pending",
+        ),
+    ]
+
+    study4 = Study(
+        "STD-004",
+        "Phase II Study: ARX-95 efficacy",
+        "A randomized, double-blind, placebo-controlled study to evaluate the efficacy and safety of ARX-95 in patients with moderate-to-severe rheumatoid arthritis.",
+        "Regeneron Pharmaceuticals",
+        "draft",
+        datetime(2024, 3, 1),
+        study4_sites,
+        None,  # No principal investigator assigned yet
+    )
+
+    # Add files to study 4
+    study4.add_e_source_file(
+        StudyFile(
+            "FILE-006",
+            "eSource_ARX95_v1.0.pdf",
+            "esource",
+            "Dr. Michael Chen",
+            datetime(2024, 3, 5),
+            "pending",
+            2048000,
+        )
+    )
+
+    study4.add_crf_file(
+        StudyFile(
+            "FILE-007",
+            "CRF_ARX95_v1.0.pdf",
+            "crf",
+            "Dr. Michael Chen",
+            datetime(2024, 3, 8),
+            "pending",
+            1536000,
+        )
+    )
+
+    return [study1, study2, study3, study4]
 
 
 # Initialize mock studies
