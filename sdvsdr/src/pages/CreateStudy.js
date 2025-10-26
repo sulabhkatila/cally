@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar.js";
-import dataService from "../services/dataService.js";
 import { getUser } from "../utils/userStorage.js";
 import "./CreateStudy.css";
 
@@ -22,75 +21,12 @@ const CreateStudy = () => {
     };
 
     const analyzeProtocol = async (file) => {
-        setIsAnalyzing(true);
-        setError(null);
-
-        try {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            // Send to backend for protocol analysis
-            const response = await fetch("/api/analyze-protocol", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to analyze protocol");
-            }
-
-            const result = await response.json();
-            setAnalysisResult(result);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setIsAnalyzing(false);
-        }
+        // Do nothing
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
-
-        try {
-            if (!analysisResult) {
-                throw new Error("Please analyze the protocol first");
-            }
-
-            // Create study data from analysis result
-            const studyData = {
-                title:
-                    analysisResult.trial_overview?.protocol_title ||
-                    "Unknown Study",
-                protocol: protocolFile.name,
-                sponsor: user.companyAssociation,
-                phase: analysisResult.trial_overview?.study_phase || "Unknown",
-                indication:
-                    analysisResult.trial_overview?.indication || "Unknown",
-                description: analysisResult.trial_overview?.description || "",
-                estimatedDuration:
-                    analysisResult.trial_design?.duration || "Unknown",
-                estimatedSubjects:
-                    analysisResult.trial_design?.sample_size || "Unknown",
-                principalInvestigator:
-                    analysisResult.key_personnel?.principal_investigators ||
-                    null,
-                // Store the full analysis result for future reference
-                protocolAnalysis: analysisResult,
-            };
-
-            // Create study via backend API
-            const response = await dataService.createStudy(studyData);
-
-            console.log("Study created successfully:", response);
-            alert("Study created successfully!");
-            navigate("/studies");
-        } catch (error) {
-            console.error("Error creating study:", error);
-            alert("Failed to create study: " + error.message);
-        } finally {
-            setIsSubmitting(false);
-        }
+        // Do nothing
     };
 
     const handleCancel = () => {
@@ -266,11 +202,7 @@ const CreateStudy = () => {
                         >
                             Cancel
                         </button>
-                        <button
-                            type="submit"
-                            className="submit-btn"
-                            disabled={isSubmitting || !analysisResult}
-                        >
+                        <button type="submit" className="submit-btn">
                             {isSubmitting ? (
                                 <>
                                     <svg
