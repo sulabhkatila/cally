@@ -735,6 +735,125 @@
   font-weight: 600;
 }
 
+/* Plan Header with Edit Button */
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.plan-header h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.edit-plan-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 16px;
+}
+
+.edit-plan-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Attach Plan Button */
+.attach-plan-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.attach-plan-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+}
+
+.attach-plan-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Tooltip styling for the title attribute */
+.attach-plan-btn[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 8px;
+  max-width: 300px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.attach-plan-btn[title]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 3px;
+  z-index: 1000;
+}
+
+/* Plan Edit Textarea */
+.plan-edit-textarea {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  width: 100%;
+  line-height: 1.5;
+}
+
+.plan-edit-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.plan-edit-textarea::placeholder {
+  color: #a0a0a0;
+}
+
 /* Form Actions */
 .form-actions {
   display: flex;

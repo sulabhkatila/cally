@@ -16,6 +16,26 @@ const CreateStudy = () => {
     const [showMonitoringPlan, setShowMonitoringPlan] = useState(false);
     const [isLoadingPlan, setIsLoadingPlan] = useState(false);
     const [planGenerated, setPlanGenerated] = useState(false);
+    const [isEditingPlan, setIsEditingPlan] = useState(false);
+    const [monitoringPlanData, setMonitoringPlanData] = useState({
+        executiveSummary: "",
+        riskBasedMonitoring: "",
+        remoteSDV: "",
+        onSiteVisits: "",
+        centralMonitoring: "",
+        dataValidation: "",
+        queryManagement: "",
+        sourceDocumentVerification: "",
+        adverseEventMonitoring: "",
+        gcpCompliance: "",
+        fdaCompliance: "",
+        emaCompliance: "",
+        auditTrail: "",
+        siteQualification: "",
+        investigatorTraining: "",
+        performanceMetrics: "",
+        correctiveAction: "",
+    });
     const [editableData, setEditableData] = useState({
         title: "",
         sponsor: "",
@@ -80,6 +100,43 @@ const CreateStudy = () => {
         setTimeout(() => {
             setIsLoadingPlan(false);
             setPlanGenerated(true);
+            // Initialize monitoring plan data with default content
+            setMonitoringPlanData({
+                executiveSummary:
+                    "This monitoring plan is designed for a Phase II randomized, double-blind, placebo-controlled study evaluating ARX-945 in adults with moderate-to-severe rheumatoid arthritis. The plan incorporates risk-based monitoring principles and remote source data verification to ensure data quality and patient safety.",
+                riskBasedMonitoring:
+                    "Monthly risk assessment updates using centralized data analytics. High-risk data points include primary efficacy endpoints, serious adverse events, protocol deviations, and informed consent compliance. Risk scoring uses a 0-10 scale based on data quality, site performance, and protocol compliance history. Sites scoring 7+ require immediate intervention, 5-6 require enhanced monitoring.",
+                remoteSDV:
+                    "100% for critical data points within 48 hours of data entry. Process includes automated data validation rules triggering queries, remote monitors reviewing source documents via secure portal, discrepancies logged in eTMF within 24 hours, and site receiving query notification within 48 hours. Critical data points include primary/secondary endpoints, SAEs, protocol deviations, and informed consent dates.",
+                onSiteVisits:
+                    "High-Risk Sites (Risk Score 7+): Monthly visits (4-week intervals), 2-3 days per visit, 100% SDV of critical data. Standard Sites (Risk Score 3-6): Quarterly visits (12-week intervals), 1-2 days per visit, 20% random SDV. Low-Risk Sites (Risk Score 0-2): Semi-annual visits (24-week intervals), 1 day per visit, minimal SDV (5% sample).",
+                centralMonitoring:
+                    "24/7 automated data monitoring with alerts. Daily reviews of data quality metrics, query resolution rates, and enrollment progress. Weekly reports on site performance dashboards and protocol compliance trends. Monthly analysis with risk score updates and monitoring plan adjustments.",
+                dataValidation:
+                    "Real-time validation on data entry, batch validation daily at 6 PM EST. Critical variable rules include Primary Endpoint (ACR50) range 0-100, Adverse Events severity grading 1-5, Concomitant Medications start/stop date validation, and Vital Signs physiological range checks. Validation process includes data entry triggering immediate validation, failed validations creating automatic queries, site receiving notification within 2 hours, and resolution tracked with SLA: 48 hours for critical, 72 hours for routine.",
+                queryManagement:
+                    "Critical Queries: 24-hour resolution, auto-escalation to PI. Major Queries: 48-hour resolution, site coordinator notification. Minor Queries: 72-hour resolution, standard workflow. Escalation process includes Day 1: Initial query sent to site coordinator, Day 2: Reminder notification if unresolved, Day 3: Escalation to Principal Investigator, Day 5: Sponsor notification and potential site visit.",
+                sourceDocumentVerification:
+                    "Primary Endpoints: 100% verification within 48 hours. SAEs: 100% verification within 24 hours. Secondary Endpoints: 20% random sample, monthly. Demographics: 10% random sample, quarterly. Process includes automated selection of source documents for review, remote monitor accessing secure document portal, side-by-side comparison of EDC data vs source, discrepancy logging with severity classification, and site notification and resolution tracking.",
+                adverseEventMonitoring:
+                    "Serious AEs: 24-hour notification to sponsor, 7-day written report. Non-serious AEs: 48-hour EDC entry, monthly summary reports. Expected AEs: Weekly batch processing. Review process includes automated severity and causality assessment, medical monitor review within 4 hours for SAEs, regulatory reporting within 15 days (FDA) or 7 days (EMA), and follow-up tracking until resolution or study completion.",
+                gcpCompliance:
+                    "Monthly comprehensive review, quarterly deep-dive audits. Key GCP areas monitored include Informed Consent (100% verification of consent timing, completeness, and comprehension), Protocol Adherence (real-time monitoring of protocol deviations and violations), Investigator Qualifications (annual verification of CV, medical license, GCP training), and Site Infrastructure (quarterly assessment of facilities, equipment, and personnel).",
+                fdaCompliance:
+                    "Annual validation of all electronic systems used in data collection. Digital signature requirements include unique user identification for all system access, password complexity 12+ characters with special characters and 90-day rotation, digital certificates for critical data approvals, and audit trail for all data modifications with timestamp and user ID.",
+                emaCompliance:
+                    "Clinical Trial Information System (CTIS) registration within 6 months, EU Clinical Trials Database updates within 7 days of changes, Pharmacovigilance reporting via EudraVigilance system, and Data Protection Regulation (GDPR) compliance for EU subjects. Reporting timeline includes initial application 60 days for regulatory review, substantial amendments 35 days notification period, safety reporting 7 days for SUSARs and 15 days for annual reports, and end of trial notification 90 days after last subject visit.",
+                auditTrail:
+                    "All data changes logged with user ID, timestamp, reason for change. Original data preserved and accessible for 15 years post-study. System access logs maintained with IP addresses and session duration. Document version control with complete revision history. Documentation standards include Standard Operating Procedures (SOPs) for all monitoring activities, training records for all personnel with annual recertification, equipment calibration logs with traceable standards, and temperature and environmental monitoring for storage facilities.",
+                siteQualification:
+                    "Pre-qualification assessment includes site feasibility questionnaire completion within 5 business days, PI CV and medical license verification within 48 hours, facility inspection and equipment validation within 2 weeks, and regulatory approval status verification (IRB/IEC, FDA Form 1572). Site initiation timeline includes Week 1: Site selection and contract execution, Week 2-3: Regulatory submissions and approvals, Week 4: Site initiation visit and training, Week 5: First subject enrollment authorization.",
+                investigatorTraining:
+                    "GCP certification valid for 2 years with renewal required. Protocol-specific training: 4-hour comprehensive session. EDC system training: 2-hour hands-on workshop. Safety reporting training: 1-hour focused session. Certification process includes initial training completion with 80% passing score, competency assessment through case study scenarios, annual refresher training with updated protocols, and performance evaluation and feedback sessions.",
+                performanceMetrics:
+                    "Key Performance Indicators include Enrollment Rate: Target 2-3 subjects per month per site, Data Quality Score: >95% accuracy, <5% query rate, Query Resolution Time: <48 hours for critical, <72 hours for routine, Protocol Compliance: <2% major deviations, <5% minor deviations, and SAE Reporting: 100% within 24 hours, 0% late reports. Performance monitoring frequency includes real-time daily enrollment and data entry tracking, weekly query resolution and data quality reports, monthly comprehensive site performance dashboard, and quarterly site ranking and comparative analysis.",
+                correctiveAction:
+                    "Trigger conditions include performance score <70 for 2 consecutive months, major protocol deviations >3 in any 30-day period, critical query resolution time >72 hours consistently, and SAE reporting delays >24 hours on 2+ occasions. Corrective action process includes Day 1: Performance issue identification and notification, Day 3: Root cause analysis meeting with site team, Day 7: Corrective action plan development and approval, Day 14: Implementation monitoring and support, Day 30: Effectiveness evaluation and plan adjustment.",
+            });
         }, 5000);
     };
 
@@ -91,6 +148,36 @@ const CreateStudy = () => {
     const handleSkipMonitoringPlan = () => {
         setShowMonitoringPlan(false);
         setPlanGenerated(false);
+        navigate("/studies");
+    };
+
+    const handleEditMonitoringPlan = () => {
+        setIsEditingPlan(true);
+    };
+
+    const handleSaveMonitoringPlan = () => {
+        setIsEditingPlan(false);
+    };
+
+    const handleCancelEditMonitoringPlan = () => {
+        setIsEditingPlan(false);
+    };
+
+    const handleMonitoringPlanChange = (field, value) => {
+        setMonitoringPlanData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const handleAttachPlanToStudy = () => {
+        // Attach the monitoring plan to the study
+        console.log("Attaching monitoring plan to study:", monitoringPlanData);
+        // Here you would typically save the plan to the study and start AI agents
+        alert(
+            "Monitoring plan attached to study! AI agents will now run the monitoring plan. Check logs for real-time updates."
+        );
+        setShowMonitoringPlan(false);
         navigate("/studies");
     };
 
@@ -566,26 +653,49 @@ const CreateStudy = () => {
                             {/* Monitoring Plan Content - Show when plan is generated */}
                             {planGenerated && (
                                 <div className="monitoring-plan-content">
-                                    <h3>Clinical Trial Monitoring Plan</h3>
-                                    <p className="plan-subtitle">
-                                        Generated based on protocol:{" "}
-                                        <strong>{editableData.title}</strong>
-                                    </p>
+                                    <div className="plan-header">
+                                        <h3>Clinical Trial Monitoring Plan</h3>
+                                        <p className="plan-subtitle">
+                                            Generated based on protocol:{" "}
+                                            <strong>
+                                                {editableData.title}
+                                            </strong>
+                                        </p>
+                                        {!isEditingPlan && (
+                                            <button
+                                                onClick={
+                                                    handleEditMonitoringPlan
+                                                }
+                                                className="edit-plan-btn"
+                                            >
+                                                Edit Plan
+                                            </button>
+                                        )}
+                                    </div>
 
                                     <div className="plan-section">
                                         <h4>1. Executive Summary</h4>
-                                        <p>
-                                            This monitoring plan is designed for
-                                            a Phase II randomized, double-blind,
-                                            placebo-controlled study evaluating
-                                            ARX-945 in adults with
-                                            moderate-to-severe rheumatoid
-                                            arthritis. The plan incorporates
-                                            risk-based monitoring principles and
-                                            remote source data verification to
-                                            ensure data quality and patient
-                                            safety.
-                                        </p>
+                                        {isEditingPlan ? (
+                                            <textarea
+                                                value={
+                                                    monitoringPlanData.executiveSummary
+                                                }
+                                                onChange={(e) =>
+                                                    handleMonitoringPlanChange(
+                                                        "executiveSummary",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="plan-edit-textarea"
+                                                rows="4"
+                                            />
+                                        ) : (
+                                            <p>
+                                                {
+                                                    monitoringPlanData.executiveSummary
+                                                }
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div className="plan-section">
@@ -594,40 +704,27 @@ const CreateStudy = () => {
                                         <h5>
                                             2.1 Risk-Based Monitoring Framework
                                         </h5>
-                                        <ul>
-                                            <li>
-                                                <strong>
-                                                    Risk Assessment Frequency:
-                                                </strong>{" "}
-                                                Monthly risk assessment updates
-                                                using centralized data analytics
-                                            </li>
-                                            <li>
-                                                <strong>
-                                                    High-Risk Data Points:
-                                                </strong>{" "}
-                                                Primary efficacy endpoints,
-                                                serious adverse events, protocol
-                                                deviations, informed consent
-                                                compliance
-                                            </li>
-                                            <li>
-                                                <strong>
-                                                    Risk Scoring Method:
-                                                </strong>{" "}
-                                                0-10 scale based on data
-                                                quality, site performance, and
-                                                protocol compliance history
-                                            </li>
-                                            <li>
-                                                <strong>
-                                                    Risk Thresholds:
-                                                </strong>{" "}
-                                                Sites scoring 7+ require
-                                                immediate intervention, 5-6
-                                                require enhanced monitoring
-                                            </li>
-                                        </ul>
+                                        {isEditingPlan ? (
+                                            <textarea
+                                                value={
+                                                    monitoringPlanData.riskBasedMonitoring
+                                                }
+                                                onChange={(e) =>
+                                                    handleMonitoringPlanChange(
+                                                        "riskBasedMonitoring",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="plan-edit-textarea"
+                                                rows="4"
+                                            />
+                                        ) : (
+                                            <p>
+                                                {
+                                                    monitoringPlanData.riskBasedMonitoring
+                                                }
+                                            </p>
+                                        )}
 
                                         <h5>
                                             2.2 Remote Source Data Verification
@@ -1630,18 +1727,44 @@ const CreateStudy = () => {
                             )}
                         </div>
                         <div className="modal-footer">
-                            <button
-                                onClick={handleSkipMonitoringPlan}
-                                className="cancel-btn"
-                            >
-                                Close
-                            </button>
-                            <button
-                                onClick={handleCloseMonitoringPlan}
-                                className="submit-btn"
-                            >
-                                Complete Setup
-                            </button>
+                            {isEditingPlan ? (
+                                <>
+                                    <button
+                                        onClick={handleCancelEditMonitoringPlan}
+                                        className="cancel-btn"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSaveMonitoringPlan}
+                                        className="submit-btn"
+                                    >
+                                        Save Changes
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={handleSkipMonitoringPlan}
+                                        className="cancel-btn"
+                                    >
+                                        Close
+                                    </button>
+                                    <button
+                                        onClick={handleAttachPlanToStudy}
+                                        className="attach-plan-btn"
+                                        title="Attach the monitoring plan to the study and have AI agents run the monitoring plan. Logs can be viewed for real-time updates."
+                                    >
+                                        Attach Plan to Study
+                                    </button>
+                                    <button
+                                        onClick={handleCloseMonitoringPlan}
+                                        className="submit-btn"
+                                    >
+                                        Complete Setup
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
