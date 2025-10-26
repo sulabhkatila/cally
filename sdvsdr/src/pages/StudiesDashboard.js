@@ -644,28 +644,38 @@ The agent can help with:
                                                         handleViewData(study);
                                                     }}
                                                     style={{
-                                                        background: `linear-gradient(135deg, ${edcProvider.color}20, ${edcProvider.color}10)`,
-                                                        border: `1px solid ${edcProvider.color}40`,
+                                                        background: `linear-gradient(135deg, ${edcProvider.color}15, ${edcProvider.color}08)`,
+                                                        border: `1px solid ${edcProvider.color}30`,
                                                         color: edcProvider.color,
-                                                        padding: "6px 12px",
-                                                        borderRadius: "6px",
-                                                        fontSize: "11px",
+                                                        padding: "8px 16px",
+                                                        borderRadius: "10px",
+                                                        fontSize: "12px",
                                                         fontWeight: "600",
                                                         cursor: "pointer",
                                                         transition:
-                                                            "all 0.2s ease",
-                                                        marginTop: "8px",
+                                                            "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                                        marginTop: "10px",
                                                         width: "100%",
+                                                        backdropFilter:
+                                                            "blur(10px)",
+                                                        boxShadow: `0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
+                                                        letterSpacing: "0.3px",
+                                                        position: "relative",
+                                                        overflow: "hidden",
                                                     }}
                                                     onMouseEnter={(e) => {
-                                                        e.target.style.background = `linear-gradient(135deg, ${edcProvider.color}30, ${edcProvider.color}20)`;
+                                                        e.target.style.background = `linear-gradient(135deg, ${edcProvider.color}25, ${edcProvider.color}15)`;
+                                                        e.target.style.borderColor = `${edcProvider.color}50`;
                                                         e.target.style.transform =
-                                                            "translateY(-1px)";
+                                                            "translateY(-2px)";
+                                                        e.target.style.boxShadow = `0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px ${edcProvider.color}30, inset 0 1px 0 rgba(255, 255, 255, 0.15)`;
                                                     }}
                                                     onMouseLeave={(e) => {
-                                                        e.target.style.background = `linear-gradient(135deg, ${edcProvider.color}20, ${edcProvider.color}10)`;
+                                                        e.target.style.background = `linear-gradient(135deg, ${edcProvider.color}15, ${edcProvider.color}08)`;
+                                                        e.target.style.borderColor = `${edcProvider.color}30`;
                                                         e.target.style.transform =
                                                             "translateY(0)";
+                                                        e.target.style.boxShadow = `0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)`;
                                                     }}
                                                 >
                                                     📊 View Data
@@ -1072,62 +1082,194 @@ The agent can help with:
                 <div
                     className="modal-overlay"
                     onClick={() => setShowFileViewerModal(false)}
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: "rgba(0, 0, 0, 0.85)",
+                        backdropFilter: "blur(20px) saturate(1.2)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                        padding: "20px",
+                    }}
                 >
                     <div
                         className="modal-content file-viewer-modal"
                         onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background:
+                                "linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%)",
+                            border: "1px solid rgba(255, 255, 255, 0.08)",
+                            borderRadius: "24px",
+                            boxShadow:
+                                "0 25px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+                            maxWidth: "900px",
+                            width: "100%",
+                            maxHeight: "90vh",
+                            overflow: "hidden",
+                            position: "relative",
+                        }}
                     >
-                        <div className="modal-header">
-                            <h2>
-                                <span
-                                    style={{
-                                        color: edcProvider.color,
-                                        marginRight: "8px",
-                                    }}
-                                >
-                                    {edcProvider.icon}
-                                </span>
-                                EDC Data - {selectedStudyForFiles.title}
-                            </h2>
-                            <button
-                                className="close-btn"
-                                onClick={() => setShowFileViewerModal(false)}
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <div className="modal-body">
+                        <div
+                            className="modal-header"
+                            style={{
+                                background:
+                                    "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                borderBottom:
+                                    "1px solid rgba(255, 255, 255, 0.08)",
+                                padding: "24px 32px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                position: "relative",
+                            }}
+                        >
                             <div
-                                className="edc-connection-info"
                                 style={{
-                                    background: `linear-gradient(135deg, ${edcProvider.color}15, ${edcProvider.color}05)`,
-                                    border: `1px solid ${edcProvider.color}30`,
-                                    borderRadius: "12px",
-                                    padding: "16px",
-                                    marginBottom: "20px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "12px",
                                 }}
                             >
                                 <div
                                     style={{
+                                        background: `linear-gradient(135deg, ${edcProvider.color}20, ${edcProvider.color}10)`,
+                                        border: `1px solid ${edcProvider.color}30`,
+                                        borderRadius: "12px",
+                                        padding: "8px 12px",
                                         display: "flex",
                                         alignItems: "center",
                                         gap: "8px",
-                                        marginBottom: "8px",
                                     }}
                                 >
                                     <span
                                         style={{
                                             color: edcProvider.color,
-                                            fontSize: "16px",
+                                            fontSize: "18px",
+                                            filter: "drop-shadow(0 0 8px rgba(255, 255, 255, 0.1))",
                                         }}
                                     >
                                         {edcProvider.icon}
                                     </span>
                                     <span
                                         style={{
+                                            color: "#ffffff",
+                                            fontSize: "16px",
+                                            fontWeight: "600",
+                                            letterSpacing: "0.5px",
+                                        }}
+                                    >
+                                        EDC Data
+                                    </span>
+                                </div>
+                                <div
+                                    style={{
+                                        color: "#a0a0a0",
+                                        fontSize: "14px",
+                                        fontWeight: "500",
+                                    }}
+                                >
+                                    {selectedStudyForFiles.title}
+                                </div>
+                            </div>
+                            <button
+                                className="close-btn"
+                                onClick={() => setShowFileViewerModal(false)}
+                                style={{
+                                    background: "rgba(255, 255, 255, 0.05)",
+                                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                                    borderRadius: "12px",
+                                    color: "#ffffff",
+                                    fontSize: "20px",
+                                    fontWeight: "300",
+                                    width: "40px",
+                                    height: "40px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease",
+                                    backdropFilter: "blur(10px)",
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.background =
+                                        "rgba(255, 255, 255, 0.1)";
+                                    e.target.style.borderColor =
+                                        "rgba(255, 255, 255, 0.2)";
+                                    e.target.style.transform = "scale(1.05)";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.background =
+                                        "rgba(255, 255, 255, 0.05)";
+                                    e.target.style.borderColor =
+                                        "rgba(255, 255, 255, 0.1)";
+                                    e.target.style.transform = "scale(1)";
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div
+                            className="modal-body"
+                            style={{
+                                padding: "32px",
+                                maxHeight: "calc(90vh - 120px)",
+                                overflowY: "auto",
+                            }}
+                        >
+                            <div
+                                className="edc-connection-info"
+                                style={{
+                                    background: `linear-gradient(135deg, ${edcProvider.color}08, ${edcProvider.color}03)`,
+                                    border: `1px solid ${edcProvider.color}20`,
+                                    borderRadius: "16px",
+                                    padding: "20px",
+                                    marginBottom: "24px",
+                                    position: "relative",
+                                    backdropFilter: "blur(10px)",
+                                    boxShadow: `0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                        marginBottom: "8px",
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            background: `linear-gradient(135deg, ${edcProvider.color}30, ${edcProvider.color}15)`,
+                                            border: `1px solid ${edcProvider.color}40`,
+                                            borderRadius: "10px",
+                                            padding: "6px 8px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <span
+                                            style={{
+                                                color: edcProvider.color,
+                                                fontSize: "16px",
+                                                filter: "drop-shadow(0 0 6px rgba(255, 255, 255, 0.1))",
+                                            }}
+                                        >
+                                            {edcProvider.icon}
+                                        </span>
+                                    </div>
+                                    <span
+                                        style={{
                                             fontWeight: "600",
                                             color: "#ffffff",
+                                            fontSize: "15px",
+                                            letterSpacing: "0.3px",
                                         }}
                                     >
                                         Connected via {edcProvider.name}
@@ -1136,8 +1278,10 @@ The agent can help with:
                                 <p
                                     style={{
                                         color: "#a0a0a0",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         margin: 0,
+                                        fontWeight: "400",
+                                        lineHeight: "1.4",
                                     }}
                                 >
                                     Viewing CRF data from your EDC connection
@@ -1145,70 +1289,132 @@ The agent can help with:
                             </div>
 
                             <div className="files-list">
-                                <h3
+                                <div
                                     style={{
-                                        color: "#ffffff",
-                                        marginBottom: "16px",
-                                        fontSize: "16px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        marginBottom: "20px",
+                                        paddingBottom: "12px",
+                                        borderBottom:
+                                            "1px solid rgba(255, 255, 255, 0.08)",
                                     }}
                                 >
-                                    Available CRF Files ({getCRFFiles().length})
-                                </h3>
+                                    <h3
+                                        style={{
+                                            color: "#ffffff",
+                                            margin: 0,
+                                            fontSize: "18px",
+                                            fontWeight: "600",
+                                            letterSpacing: "0.5px",
+                                        }}
+                                    >
+                                        Available CRF Files
+                                    </h3>
+                                    <div
+                                        style={{
+                                            background:
+                                                "rgba(255, 255, 255, 0.05)",
+                                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                                            borderRadius: "8px",
+                                            padding: "4px 12px",
+                                            fontSize: "12px",
+                                            color: "#a0a0a0",
+                                            fontWeight: "500",
+                                        }}
+                                    >
+                                        {getCRFFiles().length} files
+                                    </div>
+                                </div>
 
-                                <div className="files-grid">
+                                <div
+                                    className="files-grid"
+                                    style={{
+                                        display: "grid",
+                                        gridTemplateColumns:
+                                            "repeat(auto-fill, minmax(300px, 1fr))",
+                                        gap: "16px",
+                                    }}
+                                >
                                     {getCRFFiles().map((file) => (
                                         <div
                                             key={file.id}
                                             className="file-item"
                                             style={{
                                                 background:
-                                                    "rgba(255, 255, 255, 0.05)",
-                                                border: "1px solid rgba(255, 255, 255, 0.1)",
-                                                borderRadius: "12px",
-                                                padding: "16px",
-                                                transition: "all 0.2s ease",
+                                                    "linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                                border: "1px solid rgba(255, 255, 255, 0.08)",
+                                                borderRadius: "16px",
+                                                padding: "20px",
+                                                transition:
+                                                    "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                                                 cursor: "pointer",
+                                                position: "relative",
+                                                backdropFilter: "blur(10px)",
+                                                boxShadow:
+                                                    "0 4px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
                                             }}
                                             onMouseEnter={(e) => {
                                                 e.target.style.background =
-                                                    "rgba(255, 255, 255, 0.08)";
+                                                    "linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%)";
                                                 e.target.style.borderColor =
                                                     edcProvider.color + "40";
+                                                e.target.style.transform =
+                                                    "translateY(-2px)";
+                                                e.target.style.boxShadow = `0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px ${edcProvider.color}20, inset 0 1px 0 rgba(255, 255, 255, 0.1)`;
                                             }}
                                             onMouseLeave={(e) => {
                                                 e.target.style.background =
-                                                    "rgba(255, 255, 255, 0.05)";
+                                                    "linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)";
                                                 e.target.style.borderColor =
-                                                    "rgba(255, 255, 255, 0.1)";
+                                                    "rgba(255, 255, 255, 0.08)";
+                                                e.target.style.transform =
+                                                    "translateY(0)";
+                                                e.target.style.boxShadow =
+                                                    "0 4px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)";
                                             }}
                                         >
                                             <div
                                                 style={{
                                                     display: "flex",
-                                                    alignItems: "center",
-                                                    gap: "12px",
+                                                    alignItems: "flex-start",
+                                                    gap: "16px",
                                                 }}
                                             >
                                                 <div
                                                     style={{
-                                                        background:
-                                                            edcProvider.color +
-                                                            "20",
+                                                        background: `linear-gradient(135deg, ${edcProvider.color}25, ${edcProvider.color}10)`,
+                                                        border: `1px solid ${edcProvider.color}30`,
                                                         color: edcProvider.color,
-                                                        borderRadius: "8px",
-                                                        padding: "8px",
-                                                        fontSize: "18px",
+                                                        borderRadius: "12px",
+                                                        padding: "12px",
+                                                        fontSize: "20px",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent:
+                                                            "center",
+                                                        minWidth: "48px",
+                                                        height: "48px",
+                                                        filter: "drop-shadow(0 0 8px rgba(255, 255, 255, 0.1))",
                                                     }}
                                                 >
                                                     📄
                                                 </div>
-                                                <div style={{ flex: 1 }}>
+                                                <div
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: 0,
+                                                    }}
+                                                >
                                                     <h4
                                                         style={{
                                                             color: "#ffffff",
-                                                            margin: "0 0 4px 0",
-                                                            fontSize: "14px",
+                                                            margin: "0 0 6px 0",
+                                                            fontSize: "15px",
                                                             fontWeight: "600",
+                                                            letterSpacing:
+                                                                "0.3px",
+                                                            lineHeight: "1.3",
                                                         }}
                                                     >
                                                         {file.type}
@@ -1216,10 +1422,17 @@ The agent can help with:
                                                     <p
                                                         style={{
                                                             color: "#a0a0a0",
-                                                            margin: "0 0 4px 0",
+                                                            margin: "0 0 6px 0",
                                                             fontSize: "12px",
                                                             fontFamily:
                                                                 "monospace",
+                                                            background:
+                                                                "rgba(255, 255, 255, 0.03)",
+                                                            padding: "4px 8px",
+                                                            borderRadius: "6px",
+                                                            border: "1px solid rgba(255, 255, 255, 0.05)",
+                                                            wordBreak:
+                                                                "break-all",
                                                         }}
                                                     >
                                                         {file.name}
@@ -1227,9 +1440,10 @@ The agent can help with:
                                                     <p
                                                         style={{
                                                             color: "#888",
-                                                            margin: "0 0 8px 0",
-                                                            fontSize: "11px",
+                                                            margin: "0 0 12px 0",
+                                                            fontSize: "12px",
                                                             fontStyle: "italic",
+                                                            lineHeight: "1.4",
                                                         }}
                                                     >
                                                         {file.description}
@@ -1240,21 +1454,25 @@ The agent can help with:
                                                             alignItems:
                                                                 "center",
                                                             gap: "8px",
+                                                            flexWrap: "wrap",
                                                         }}
                                                     >
                                                         <span
                                                             style={{
                                                                 background:
-                                                                    "#10B98120",
+                                                                    "linear-gradient(135deg, #10B98120, #10B98110)",
+                                                                border: "1px solid #10B98130",
                                                                 color: "#10B981",
                                                                 padding:
-                                                                    "2px 8px",
+                                                                    "4px 10px",
                                                                 borderRadius:
-                                                                    "4px",
+                                                                    "8px",
                                                                 fontSize:
                                                                     "11px",
                                                                 fontWeight:
                                                                     "600",
+                                                                letterSpacing:
+                                                                    "0.3px",
                                                             }}
                                                         >
                                                             {file.status}
@@ -1264,6 +1482,13 @@ The agent can help with:
                                                                 color: "#666",
                                                                 fontSize:
                                                                     "11px",
+                                                                background:
+                                                                    "rgba(255, 255, 255, 0.03)",
+                                                                padding:
+                                                                    "4px 8px",
+                                                                borderRadius:
+                                                                    "6px",
+                                                                border: "1px solid rgba(255, 255, 255, 0.05)",
                                                             }}
                                                         >
                                                             {file.uploadedAt}
@@ -1277,10 +1502,51 @@ The agent can help with:
                             </div>
                         </div>
 
-                        <div className="modal-actions">
+                        <div
+                            className="modal-actions"
+                            style={{
+                                background:
+                                    "linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                borderTop:
+                                    "1px solid rgba(255, 255, 255, 0.08)",
+                                padding: "20px 32px",
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                gap: "12px",
+                            }}
+                        >
                             <button
                                 className="cancel-btn"
                                 onClick={() => setShowFileViewerModal(false)}
+                                style={{
+                                    background:
+                                        "linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)",
+                                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                                    borderRadius: "12px",
+                                    color: "#ffffff",
+                                    fontSize: "14px",
+                                    fontWeight: "500",
+                                    padding: "12px 24px",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease",
+                                    backdropFilter: "blur(10px)",
+                                    letterSpacing: "0.3px",
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.background =
+                                        "linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)";
+                                    e.target.style.borderColor =
+                                        "rgba(255, 255, 255, 0.25)";
+                                    e.target.style.transform =
+                                        "translateY(-1px)";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.background =
+                                        "linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)";
+                                    e.target.style.borderColor =
+                                        "rgba(255, 255, 255, 0.15)";
+                                    e.target.style.transform = "translateY(0)";
+                                }}
                             >
                                 Close
                             </button>
