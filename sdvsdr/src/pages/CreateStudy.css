@@ -887,6 +887,38 @@
   margin-right: auto;
 }
 
+.next-step-info {
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  text-align: left;
+}
+
+.next-step-info h4 {
+  color: #667eea;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.next-step-info h4::before {
+  content: "👥";
+  font-size: 20px;
+}
+
+.next-step-info p {
+  color: #e0e0e0;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: none;
+}
+
 .monitoring-features {
   display: grid;
   gap: 20px;

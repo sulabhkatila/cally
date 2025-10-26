@@ -1815,6 +1815,16 @@ const CreateStudy = () => {
                                     and will continuously oversee data quality,
                                     protocol compliance, and site performance.
                                 </p>
+                                <div className="next-step-info">
+                                    <h4>Next Step: Invite Investigators</h4>
+                                    <p>
+                                        To begin your clinical trial, you'll
+                                        need to invite investigators to
+                                        participate in your study. You can
+                                        manage investigator invitations and site
+                                        assignments from your study dashboard.
+                                    </p>
+                                </div>
                                 <div className="monitoring-features">
                                     <div className="feature-item">
                                         <div className="feature-icon">🤖</div>
