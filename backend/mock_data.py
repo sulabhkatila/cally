@@ -56,14 +56,6 @@ def create_mock_studies():
             "Baltimore, MD",
             "active",
         ),
-        Site("SITE-002", "Mayo Clinic", "Dr. Michael Chen", "Rochester, MN", "active"),
-        Site(
-            "SITE-003",
-            "Cleveland Clinic",
-            "Dr. Emily Rodriguez",
-            "Cleveland, OH",
-            "pending",
-        ),
     ]
 
     study1 = Study(
@@ -100,7 +92,7 @@ def create_mock_studies():
             "FILE-002",
             "CRF_Visit1_v1.0.pdf",
             "crf",
-            "Dr. Michael Chen",
+            "Dr. Sarah Johnson",
             datetime(2024, 1, 22),
             "under-review",
             1536000,
@@ -114,13 +106,6 @@ def create_mock_studies():
             "Massachusetts General Hospital",
             "Dr. David Kim",
             "Boston, MA",
-            "pending",
-        ),
-        Site(
-            "SITE-005",
-            "Stanford Medical Center",
-            "Dr. Lisa Davis",
-            "Stanford, CA",
             "pending",
         ),
     ]
@@ -156,13 +141,6 @@ def create_mock_studies():
             "UCLA Medical Center",
             "Dr. James Wilson",
             "Los Angeles, CA",
-            "active",
-        ),
-        Site(
-            "SITE-007",
-            "Mount Sinai Hospital",
-            "Dr. Amanda Taylor",
-            "New York, NY",
             "active",
         ),
     ]
@@ -201,7 +179,7 @@ def create_mock_studies():
             "FILE-005",
             "CRF_Neurological_v1.1.pdf",
             "crf",
-            "Dr. Amanda Taylor",
+            "Dr. James Wilson",
             datetime(2024, 1, 28),
             "approved",
             1792000,

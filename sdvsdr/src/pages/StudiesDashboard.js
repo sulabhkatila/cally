@@ -9,6 +9,21 @@ import "./StudiesDashboard.css";
 const StudiesDashboard = () => {
     const navigate = useNavigate();
     const user = getUser();
+
+    // Get the authentication method to determine EDC provider
+    const getEDCProvider = () => {
+        const authMethod = localStorage.getItem("authMethod");
+        if (authMethod === "Medidata SSO") {
+            return { name: "Medidata Rave", color: "#10B981", icon: "🏥" };
+        } else if (authMethod === "Veera Vault SSO") {
+            return { name: "Veeva Vault", color: "#6366F1", icon: "📊" };
+        } else if (authMethod === "Google SSO") {
+            return { name: "Google Cloud", color: "#4285F4", icon: "☁️" };
+        }
+        return { name: "EDC", color: "#6B7280", icon: "📋" }; // Default fallback
+    };
+
+    const edcProvider = getEDCProvider();
     const [studies, setStudies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -29,6 +44,8 @@ const StudiesDashboard = () => {
     const [accessModalMessage, setAccessModalMessage] = useState("");
     const [accessModalTitle, setAccessModalTitle] = useState("");
     const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+    const [showFileViewerModal, setShowFileViewerModal] = useState(false);
+    const [selectedStudyForFiles, setSelectedStudyForFiles] = useState(null);
 
     const isSponsor = user?.role === "Sponsor";
     const isInvestigator = user?.role === "Investigator";
@@ -165,14 +182,18 @@ const StudiesDashboard = () => {
                 pollForAccessResponse(study);
             } else {
                 setAccessModalTitle("❌ Error");
-                setAccessModalMessage("Failed to send access request. Please try again.");
+                setAccessModalMessage(
+                    "Failed to send access request. Please try again."
+                );
                 setShowAccessModal(true);
                 setIsWaitingForResponse(false);
             }
         } catch (error) {
             console.error("Error connecting to investigator:", error);
             setAccessModalTitle("❌ Connection Error");
-            setAccessModalMessage("Failed to connect to investigator site. Please try again.");
+            setAccessModalMessage(
+                "Failed to connect to investigator site. Please try again."
+            );
             setShowAccessModal(true);
             setIsWaitingForResponse(false);
         }
@@ -314,6 +335,81 @@ The agent can help with:
         }
     };
 
+    // Handle opening file viewer modal
+    const handleViewData = (study) => {
+        setSelectedStudyForFiles(study);
+        setShowFileViewerModal(true);
+    };
+
+    // CRF files data from mocks/crf directory
+    const getCRFFiles = () => {
+        return [
+            {
+                id: "CRF-001",
+                name: "crf_sub_1_adverseeffect.docx",
+                type: "Adverse Effect",
+                status: "completed",
+                uploadedBy: "Dr. Sarah Johnson",
+                uploadedAt: "2024-01-15",
+                description: "Adverse event reporting form",
+            },
+            {
+                id: "CRF-002",
+                name: "crf_sub_1_Demographics.docx",
+                type: "Demographics",
+                status: "completed",
+                uploadedBy: "Dr. Sarah Johnson",
+                uploadedAt: "2024-01-16",
+                description: "Patient demographic information",
+            },
+            {
+                id: "CRF-003",
+                name: "crf_sub_1_diseaseActivityAssessment.docx",
+                type: "Disease Activity",
+                status: "completed",
+                uploadedBy: "Dr. Sarah Johnson",
+                uploadedAt: "2024-01-17",
+                description: "Disease activity assessment scores",
+            },
+            {
+                id: "CRF-004",
+                name: "crf_sub_1_medicalhistory.docx",
+                type: "Medical History",
+                status: "completed",
+                uploadedBy: "Dr. Sarah Johnson",
+                uploadedAt: "2024-01-18",
+                description: "Patient medical history and comorbidities",
+            },
+            {
+                id: "CRF-005",
+                name: "crf_sub_1_medications.docx",
+                type: "Medications",
+                status: "completed",
+                uploadedBy: "Dr. Sarah Johnson",
+                uploadedAt: "2024-01-19",
+                description: "Current and prior medications",
+            },
+            {
+                id: "CRF-006",
+                name: "CRF_sub_1_week0-10.docx",
+                type: "Visit Data (Week 0-10)",
+                status: "completed",
+                uploadedBy: "Dr. Sarah Johnson",
+                uploadedAt: "2024-01-20",
+                description: "Longitudinal visit data across weeks 0-10",
+            },
+            {
+                id: "CRF-007",
+                name: "crf_sub_1_week0.docx",
+                type: "Baseline Visit",
+                status: "completed",
+                uploadedBy: "Dr. Sarah Johnson",
+                uploadedAt: "2024-01-21",
+                description: "Baseline visit assessments and measurements",
+            },
+        ];
+    };
+
     return (
         <div className="studies-dashboard">
             <Navbar />
@@ -325,6 +421,22 @@ The agent can help with:
                             Manage your clinical trials and source data
                             verification
                         </p>
+                        <div
+                            className="edc-provider-indicator"
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                marginTop: "8px",
+                                fontSize: "12px",
+                                color: "#a0a0a0",
+                            }}
+                        >
+                            <span style={{ color: edcProvider.color }}>
+                                {edcProvider.icon}
+                            </span>
+                            <span>EDC connected via {edcProvider.name}</span>
+                        </div>
                     </div>
                     <div className="header-right">
                         {isSponsor && (
@@ -508,25 +620,56 @@ The agent can help with:
                                             </div>
 
                                             <div className="file-section">
-                                                <h4>eSource Files</h4>
-                                                <div className="file-count">
-                                                    {study.eSourceFiles.length}{" "}
-                                                    file
-                                                    {study.eSourceFiles
-                                                        .length !== 1
-                                                        ? "s"
-                                                        : ""}
+                                                <h4>EDC</h4>
+                                                <div
+                                                    className="file-count"
+                                                    style={{
+                                                        color: edcProvider.color,
+                                                    }}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            marginRight: "6px",
+                                                        }}
+                                                    >
+                                                        {edcProvider.icon}
+                                                    </span>
+                                                    connected via{" "}
+                                                    {edcProvider.name}
                                                 </div>
-                                            </div>
-
-                                            <div className="file-section">
-                                                <h4>CRF Files</h4>
-                                                <div className="file-count">
-                                                    {study.crfFiles.length} file
-                                                    {study.crfFiles.length !== 1
-                                                        ? "s"
-                                                        : ""}
-                                                </div>
+                                                <button
+                                                    className="view-data-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleViewData(study);
+                                                    }}
+                                                    style={{
+                                                        background: `linear-gradient(135deg, ${edcProvider.color}20, ${edcProvider.color}10)`,
+                                                        border: `1px solid ${edcProvider.color}40`,
+                                                        color: edcProvider.color,
+                                                        padding: "6px 12px",
+                                                        borderRadius: "6px",
+                                                        fontSize: "11px",
+                                                        fontWeight: "600",
+                                                        cursor: "pointer",
+                                                        transition:
+                                                            "all 0.2s ease",
+                                                        marginTop: "8px",
+                                                        width: "100%",
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.target.style.background = `linear-gradient(135deg, ${edcProvider.color}30, ${edcProvider.color}20)`;
+                                                        e.target.style.transform =
+                                                            "translateY(-1px)";
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.target.style.background = `linear-gradient(135deg, ${edcProvider.color}20, ${edcProvider.color}10)`;
+                                                        e.target.style.transform =
+                                                            "translateY(0)";
+                                                    }}
+                                                >
+                                                    📊 View Data
+                                                </button>
                                             </div>
                                         </div>
 
@@ -728,11 +871,19 @@ The agent can help with:
                             {isWaitingForResponse ? (
                                 <div className="waiting-indicator">
                                     <div className="pulse-animation"></div>
-                                    <p style={{ whiteSpace: 'pre-wrap' }}>{accessModalMessage}</p>
+                                    <p style={{ whiteSpace: "pre-wrap" }}>
+                                        {accessModalMessage}
+                                    </p>
                                 </div>
                             ) : (
                                 <div className="access-modal-message">
-                                    <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0 }}>
+                                    <pre
+                                        style={{
+                                            whiteSpace: "pre-wrap",
+                                            fontFamily: "inherit",
+                                            margin: 0,
+                                        }}
+                                    >
                                         {accessModalMessage}
                                     </pre>
                                 </div>
@@ -910,6 +1061,228 @@ The agent can help with:
                                 }
                             >
                                 Add Investigator
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* File Viewer Modal */}
+            {showFileViewerModal && selectedStudyForFiles && (
+                <div
+                    className="modal-overlay"
+                    onClick={() => setShowFileViewerModal(false)}
+                >
+                    <div
+                        className="modal-content file-viewer-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="modal-header">
+                            <h2>
+                                <span
+                                    style={{
+                                        color: edcProvider.color,
+                                        marginRight: "8px",
+                                    }}
+                                >
+                                    {edcProvider.icon}
+                                </span>
+                                EDC Data - {selectedStudyForFiles.title}
+                            </h2>
+                            <button
+                                className="close-btn"
+                                onClick={() => setShowFileViewerModal(false)}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div
+                                className="edc-connection-info"
+                                style={{
+                                    background: `linear-gradient(135deg, ${edcProvider.color}15, ${edcProvider.color}05)`,
+                                    border: `1px solid ${edcProvider.color}30`,
+                                    borderRadius: "12px",
+                                    padding: "16px",
+                                    marginBottom: "20px",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                        marginBottom: "8px",
+                                    }}
+                                >
+                                    <span
+                                        style={{
+                                            color: edcProvider.color,
+                                            fontSize: "16px",
+                                        }}
+                                    >
+                                        {edcProvider.icon}
+                                    </span>
+                                    <span
+                                        style={{
+                                            fontWeight: "600",
+                                            color: "#ffffff",
+                                        }}
+                                    >
+                                        Connected via {edcProvider.name}
+                                    </span>
+                                </div>
+                                <p
+                                    style={{
+                                        color: "#a0a0a0",
+                                        fontSize: "14px",
+                                        margin: 0,
+                                    }}
+                                >
+                                    Viewing CRF data from your EDC connection
+                                </p>
+                            </div>
+
+                            <div className="files-list">
+                                <h3
+                                    style={{
+                                        color: "#ffffff",
+                                        marginBottom: "16px",
+                                        fontSize: "16px",
+                                    }}
+                                >
+                                    Available CRF Files ({getCRFFiles().length})
+                                </h3>
+
+                                <div className="files-grid">
+                                    {getCRFFiles().map((file) => (
+                                        <div
+                                            key={file.id}
+                                            className="file-item"
+                                            style={{
+                                                background:
+                                                    "rgba(255, 255, 255, 0.05)",
+                                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                                borderRadius: "12px",
+                                                padding: "16px",
+                                                transition: "all 0.2s ease",
+                                                cursor: "pointer",
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.target.style.background =
+                                                    "rgba(255, 255, 255, 0.08)";
+                                                e.target.style.borderColor =
+                                                    edcProvider.color + "40";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.target.style.background =
+                                                    "rgba(255, 255, 255, 0.05)";
+                                                e.target.style.borderColor =
+                                                    "rgba(255, 255, 255, 0.1)";
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "12px",
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        background:
+                                                            edcProvider.color +
+                                                            "20",
+                                                        color: edcProvider.color,
+                                                        borderRadius: "8px",
+                                                        padding: "8px",
+                                                        fontSize: "18px",
+                                                    }}
+                                                >
+                                                    📄
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <h4
+                                                        style={{
+                                                            color: "#ffffff",
+                                                            margin: "0 0 4px 0",
+                                                            fontSize: "14px",
+                                                            fontWeight: "600",
+                                                        }}
+                                                    >
+                                                        {file.type}
+                                                    </h4>
+                                                    <p
+                                                        style={{
+                                                            color: "#a0a0a0",
+                                                            margin: "0 0 4px 0",
+                                                            fontSize: "12px",
+                                                            fontFamily:
+                                                                "monospace",
+                                                        }}
+                                                    >
+                                                        {file.name}
+                                                    </p>
+                                                    <p
+                                                        style={{
+                                                            color: "#888",
+                                                            margin: "0 0 8px 0",
+                                                            fontSize: "11px",
+                                                            fontStyle: "italic",
+                                                        }}
+                                                    >
+                                                        {file.description}
+                                                    </p>
+                                                    <div
+                                                        style={{
+                                                            display: "flex",
+                                                            alignItems:
+                                                                "center",
+                                                            gap: "8px",
+                                                        }}
+                                                    >
+                                                        <span
+                                                            style={{
+                                                                background:
+                                                                    "#10B98120",
+                                                                color: "#10B981",
+                                                                padding:
+                                                                    "2px 8px",
+                                                                borderRadius:
+                                                                    "4px",
+                                                                fontSize:
+                                                                    "11px",
+                                                                fontWeight:
+                                                                    "600",
+                                                            }}
+                                                        >
+                                                            {file.status}
+                                                        </span>
+                                                        <span
+                                                            style={{
+                                                                color: "#666",
+                                                                fontSize:
+                                                                    "11px",
+                                                            }}
+                                                        >
+                                                            {file.uploadedAt}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                className="cancel-btn"
+                                onClick={() => setShowFileViewerModal(false)}
+                            >
+                                Close
                             </button>
                         </div>
                     </div>
