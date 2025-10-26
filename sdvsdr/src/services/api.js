@@ -112,6 +112,11 @@ class ApiService {
     async getCRFFiles() {
         return this.request("/api/files/crf");
     }
+
+    // Get individual CRF file for preview
+    getCRFFileUrl(filename) {
+        return `${this.baseURL}/api/files/crf/${filename}`;
+    }
 }
 
 // Create and export a singleton instance

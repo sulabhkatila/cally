@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BackendTest from "../components/BackendTest.js";
 import Navbar from "../components/Navbar.js";
+import apiService from "../services/api.js";
 import dataService from "../services/dataService.js";
 import { getUser } from "../utils/userStorage.js";
 import "./StudiesDashboard.css";
@@ -47,6 +48,8 @@ const StudiesDashboard = () => {
     const [showFileViewerModal, setShowFileViewerModal] = useState(false);
     const [selectedStudyForFiles, setSelectedStudyForFiles] = useState(null);
     const [availableFiles, setAvailableFiles] = useState([]);
+    const [showFilePreviewModal, setShowFilePreviewModal] = useState(false);
+    const [selectedFileForPreview, setSelectedFileForPreview] = useState(null);
 
     const isSponsor = user?.role === "Sponsor";
     const isInvestigator = user?.role === "Investigator";
@@ -350,6 +353,12 @@ The agent can help with:
             // Fallback to empty array if API fails
             setAvailableFiles([]);
         }
+    };
+
+    // Handle file preview
+    const handleFilePreview = (file) => {
+        setSelectedFileForPreview(file);
+        setShowFilePreviewModal(true);
     };
 
     return (
@@ -1282,6 +1291,9 @@ The agent can help with:
                                         <div
                                             key={file.id}
                                             className="file-item"
+                                            onClick={() =>
+                                                handleFilePreview(file)
+                                            }
                                             style={{
                                                 background:
                                                     "linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
@@ -1492,6 +1504,147 @@ The agent can help with:
                             >
                                 Close
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* File Preview Modal */}
+            {showFilePreviewModal && selectedFileForPreview && (
+                <div
+                    className="modal-overlay"
+                    onClick={() => setShowFilePreviewModal(false)}
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: "rgba(0, 0, 0, 0.9)",
+                        backdropFilter: "blur(20px) saturate(1.2)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1001,
+                        padding: "20px",
+                    }}
+                >
+                    <div
+                        className="modal-content file-preview-modal"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background:
+                                "linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%)",
+                            border: "1px solid rgba(255, 255, 255, 0.08)",
+                            borderRadius: "24px",
+                            boxShadow:
+                                "0 25px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+                            maxWidth: "95vw",
+                            maxHeight: "95vh",
+                            width: "100%",
+                            height: "100%",
+                            overflow: "hidden",
+                            position: "relative",
+                            display: "flex",
+                            flexDirection: "column",
+                        }}
+                    >
+                        {/* Header */}
+                        <div
+                            style={{
+                                padding: "24px 32px",
+                                borderBottom:
+                                    "1px solid rgba(255, 255, 255, 0.08)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                background:
+                                    "linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                backdropFilter: "blur(10px)",
+                            }}
+                        >
+                            <div>
+                                <h2
+                                    style={{
+                                        color: "#ffffff",
+                                        fontSize: "24px",
+                                        fontWeight: "600",
+                                        margin: "0 0 8px 0",
+                                        letterSpacing: "-0.5px",
+                                    }}
+                                >
+                                    {selectedFileForPreview.name}
+                                </h2>
+                                <p
+                                    style={{
+                                        color: "#a0a0a0",
+                                        fontSize: "14px",
+                                        margin: "0",
+                                        fontWeight: "500",
+                                    }}
+                                >
+                                    {selectedFileForPreview.type} •{" "}
+                                    {selectedFileForPreview.description}
+                                </p>
+                            </div>
+                            <button
+                                className="close-btn"
+                                onClick={() => setShowFilePreviewModal(false)}
+                                style={{
+                                    background: "rgba(255, 255, 255, 0.05)",
+                                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                                    borderRadius: "12px",
+                                    color: "#ffffff",
+                                    fontSize: "20px",
+                                    fontWeight: "300",
+                                    width: "40px",
+                                    height: "40px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease",
+                                    backdropFilter: "blur(10px)",
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.background =
+                                        "rgba(255, 255, 255, 0.1)";
+                                    e.target.style.borderColor =
+                                        "rgba(255, 255, 255, 0.2)";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.background =
+                                        "rgba(255, 255, 255, 0.05)";
+                                    e.target.style.borderColor =
+                                        "rgba(255, 255, 255, 0.1)";
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {/* PDF Preview */}
+                        <div
+                            style={{
+                                flex: 1,
+                                padding: "0",
+                                overflow: "hidden",
+                                background: "#1a1a1a",
+                            }}
+                        >
+                            <iframe
+                                src={apiService.getCRFFileUrl(
+                                    selectedFileForPreview.pdfName ||
+                                        selectedFileForPreview.name
+                                )}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    border: "none",
+                                    background: "#ffffff",
+                                }}
+                                title={`Preview of ${selectedFileForPreview.name}`}
+                            />
                         </div>
                     </div>
                 </div>

@@ -516,10 +516,16 @@ def get_crf_files():
                     file_type = "Baseline Visit"
                     description = "Baseline visit assessments and measurements"
 
+                # Get the PDF version of the file (if it's a DOCX, look for corresponding PDF)
+                pdf_filename = filename
+                if filename.endswith(".docx"):
+                    pdf_filename = filename.replace(".docx", ".pdf")
+
                 files.append(
                     {
                         "id": f"FILE-{len(files) + 1:03d}",
                         "name": filename,
+                        "pdfName": pdf_filename,
                         "type": file_type,
                         "status": "completed",
                         "uploadedBy": "Dr. Sarah Johnson",
@@ -534,6 +540,43 @@ def get_crf_files():
         files.sort(key=lambda x: x["name"])
 
         return jsonify({"files": files})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/files/crf/<filename>", methods=["GET"])
+def get_crf_file(filename):
+    """Serve CRF files for preview."""
+    try:
+        # Path to the CRF files directory
+        crf_dir = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "sdvsdr", "mocks", "crf"
+        )
+
+        # Security check - ensure filename doesn't contain path traversal
+        if ".." in filename or "/" in filename or "\\" in filename:
+            return jsonify({"error": "Invalid filename"}), 400
+
+        # If requesting a DOCX file, serve the PDF version instead
+        if filename.endswith(".docx"):
+            pdf_filename = filename.replace(".docx", ".pdf")
+            file_path = os.path.join(crf_dir, pdf_filename)
+        else:
+            file_path = os.path.join(crf_dir, filename)
+
+        if not os.path.exists(file_path):
+            return jsonify({"error": "File not found"}), 404
+
+        # Serve the file with appropriate headers
+        from flask import send_file
+
+        return send_file(
+            file_path,
+            as_attachment=False,
+            mimetype="application/pdf",
+            download_name=os.path.basename(file_path),
+        )
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
