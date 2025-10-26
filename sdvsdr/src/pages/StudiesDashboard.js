@@ -1709,65 +1709,291 @@ const StudiesDashboard = () => {
                                 <div className="sdv-status">
                                     <div className="status-indicator">
                                         <div className="pulse-dot"></div>
-                                        <span>SDV Process Active</span>
+                                        <span>
+                                            SDV Process Active - Initializing
+                                            File Verification
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="sdv-file-summary">
+                                    <div className="file-count-card">
+                                        <div className="file-count-number">
+                                            0
+                                        </div>
+                                        <div className="file-count-label">
+                                            Files Verified
+                                        </div>
+                                    </div>
+                                    <div className="file-count-card">
+                                        <div className="file-count-number">
+                                            7
+                                        </div>
+                                        <div className="file-count-label">
+                                            CRF Files to Verify
+                                        </div>
+                                    </div>
+                                    <div className="file-count-card">
+                                        <div className="file-count-number">
+                                            11
+                                        </div>
+                                        <div className="file-count-label">
+                                            Source Files to Review
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="sdv-sections">
                                     <div className="sdv-section">
-                                        <h4>📊 Data Quality Monitoring</h4>
-                                        <div className="progress-bar">
-                                            <div
-                                                className="progress-fill"
-                                                style={{ width: "75%" }}
-                                            ></div>
+                                        <h4>📄 CRF Files Being Verified</h4>
+                                        <div className="file-list">
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📋
+                                                </span>
+                                                <span className="file-name">
+                                                    crf_sub_1_adverseeffect.pdf
+                                                </span>
+                                                <span className="file-status pending">
+                                                    ⏳ Pending
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📋
+                                                </span>
+                                                <span className="file-name">
+                                                    crf_sub_1_Demographics.pdf
+                                                </span>
+                                                <span className="file-status pending">
+                                                    ⏳ Pending
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📋
+                                                </span>
+                                                <span className="file-name">
+                                                    crf_sub_1_diseaseActivityAssessment.pdf
+                                                </span>
+                                                <span className="file-status pending">
+                                                    ⏳ Pending
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📋
+                                                </span>
+                                                <span className="file-name">
+                                                    crf_sub_1_medicalhistory.pdf
+                                                </span>
+                                                <span className="file-status pending">
+                                                    ⏳ Pending
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📋
+                                                </span>
+                                                <span className="file-name">
+                                                    crf_sub_1_medications.pdf
+                                                </span>
+                                                <span className="file-status pending">
+                                                    ⏳ Pending
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📋
+                                                </span>
+                                                <span className="file-name">
+                                                    CRF_sub_1_week0-10.pdf
+                                                </span>
+                                                <span className="file-status pending">
+                                                    ⏳ Pending
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📋
+                                                </span>
+                                                <span className="file-name">
+                                                    crf_sub_1_week0.pdf
+                                                </span>
+                                                <span className="file-status pending">
+                                                    ⏳ Pending
+                                                </span>
+                                            </div>
                                         </div>
-                                        <p>
-                                            Analyzing data completeness and
-                                            accuracy
-                                        </p>
                                     </div>
 
                                     <div className="sdv-section">
-                                        <h4>🔍 Protocol Compliance</h4>
-                                        <div className="progress-bar">
-                                            <div
-                                                className="progress-fill"
-                                                style={{ width: "60%" }}
-                                            ></div>
+                                        <h4>📁 Source Files Being Scraped</h4>
+                                        <div className="file-list">
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_DemographicParams.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_DrugAccountabilityRecords.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_MedicalHiistory.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_PatientDiary.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_Week0Joint.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_Week0Labs.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_Week1_Physical.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    sub_1_week10_vitals.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_Week2Vitals.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_Week4Vitals.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
+                                            <div className="file-item">
+                                                <span className="file-icon">
+                                                    📄
+                                                </span>
+                                                <span className="file-name">
+                                                    Sub_1_Week8_Vitals.pdf
+                                                </span>
+                                                <span className="file-status processing">
+                                                    🔄 Scraping
+                                                </span>
+                                            </div>
                                         </div>
-                                        <p>
-                                            Verifying adherence to study
-                                            protocol
-                                        </p>
                                     </div>
 
                                     <div className="sdv-section">
-                                        <h4>📋 Source Document Verification</h4>
-                                        <div className="progress-bar">
-                                            <div
-                                                className="progress-fill"
-                                                style={{ width: "45%" }}
-                                            ></div>
+                                        <h4>🤖 AI Agent Processing</h4>
+                                        <div className="agent-status">
+                                            <div className="agent-task">
+                                                <span className="task-icon">
+                                                    🔍
+                                                </span>
+                                                <span className="task-text">
+                                                    Extracting data points from
+                                                    CRF files
+                                                </span>
+                                                <span className="task-status">
+                                                    In Progress
+                                                </span>
+                                            </div>
+                                            <div className="agent-task">
+                                                <span className="task-icon">
+                                                    📊
+                                                </span>
+                                                <span className="task-text">
+                                                    Cross-referencing with
+                                                    source documents
+                                                </span>
+                                                <span className="task-status">
+                                                    Waiting
+                                                </span>
+                                            </div>
+                                            <div className="agent-task">
+                                                <span className="task-icon">
+                                                    ✅
+                                                </span>
+                                                <span className="task-text">
+                                                    Generating verification
+                                                    report
+                                                </span>
+                                                <span className="task-status">
+                                                    Pending
+                                                </span>
+                                            </div>
                                         </div>
-                                        <p>
-                                            Cross-referencing CRF data with
-                                            source documents
-                                        </p>
-                                    </div>
-
-                                    <div className="sdv-section">
-                                        <h4>⚠️ Query Management</h4>
-                                        <div className="progress-bar">
-                                            <div
-                                                className="progress-fill"
-                                                style={{ width: "30%" }}
-                                            ></div>
-                                        </div>
-                                        <p>
-                                            Identifying and resolving data
-                                            discrepancies
-                                        </p>
                                     </div>
                                 </div>
 
