@@ -1634,8 +1634,7 @@ The agent can help with:
                         >
                             <iframe
                                 src={apiService.getCRFFileUrl(
-                                    selectedFileForPreview.pdfName ||
-                                        selectedFileForPreview.name
+                                    selectedFileForPreview.name
                                 )}
                                 style={{
                                     width: "100%",

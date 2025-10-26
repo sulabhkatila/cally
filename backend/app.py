@@ -486,7 +486,8 @@ def get_crf_files():
 
         files = []
         for filename in os.listdir(crf_dir):
-            if filename.endswith((".docx", ".pdf")):
+            # Only show PDF files
+            if filename.endswith(".pdf"):
                 file_path = os.path.join(crf_dir, filename)
                 file_stat = os.stat(file_path)
 
@@ -516,16 +517,10 @@ def get_crf_files():
                     file_type = "Baseline Visit"
                     description = "Baseline visit assessments and measurements"
 
-                # Get the PDF version of the file (if it's a DOCX, look for corresponding PDF)
-                pdf_filename = filename
-                if filename.endswith(".docx"):
-                    pdf_filename = filename.replace(".docx", ".pdf")
-
                 files.append(
                     {
                         "id": f"FILE-{len(files) + 1:03d}",
                         "name": filename,
-                        "pdfName": pdf_filename,
                         "type": file_type,
                         "status": "completed",
                         "uploadedBy": "Dr. Sarah Johnson",
